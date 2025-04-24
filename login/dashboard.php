@@ -252,7 +252,7 @@ $level = $data_user[2];
           </div>
           <div class="card mb-4" id="tabelUser">
             <div class="card-header">
-              <i class="fas fa-table me-1"></i>
+              <i class="fas fa-users me-1"></i>
               Data User
             </div>
             <div class="card-body">

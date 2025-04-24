@@ -11,4 +11,11 @@ $(document).ready(function () {
       $("#grafik, #tabelUser").hide();
       break;
   }
+
+  $(".datatable-dropdown").append(
+    '<button type="button" class="btn btn-outline-success float-start me-2" id="new-user"><i class="fa-solid fa-user-plus"></i>User</button>'
+  );
+  $("#new-user").click(function (e) {
+    console.log("halo");
+  });
 });
