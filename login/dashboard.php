@@ -250,6 +250,102 @@ $level = $data_user[2];
               </div>
             </div>
           </div>
+          <?php if (isset($_POST['tombol'])) {
+            $user = $_POST['username'];
+            $pass = password_hash($_POST['pass'], PASSWORD_DEFAULT);
+            $nama = $_POST['nama'];
+            $kota = $_POST['kota'];
+            $alamat = $_POST['alamat'];
+            $noTelp = $_POST['notelp'];
+            $level = $_POST['level'];
+            $tipe = $_POST['tipe'];
+            $status = $_POST['status'];
+
+            $qc = mysqli_query($koneksi, "SELECT username FROM user WHERE username='$user'");
+            if (mysqli_num_rows($qc)) {
+
+              echo "<div class=\"alert alert-warning alert-dismissible\">
+                      <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                      <strong>Username $user sudah ada!</strong> Coba gunakan user lainnya...
+                      </div>";
+            } else {
+              mysqli_query($koneksi, "INSERT INTO user (username,password,nama,alamat,kota,level,tipe,status,noTelp) VALUES ('$user','$pass','$nama','$alamat','$kota','$level','$tipe','$status','$noTelp')");
+              if (mysqli_affected_rows($koneksi) > 0) {
+                echo "<div class=\"alert alert-success alert-dismissible\">
+                      <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                      <strong>Data Berhasil Masuk!</strong> User $level berhasil ditambahkan.
+                      </div>";
+              } else {
+                echo '<div class="alert alert-danger alert-dismissible">
+                      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      <strong>Data Gagal Masuk!</strong> Mohon maaf data yang anda gagal ditambahkan.
+                      </div>';
+              }
+            }
+          } ?>
+          <div class="card mb-4" id="tambahUser">
+            <div class="card-header">
+              <i class="fas fa-users me-1"></i>
+              Tambah User Baru
+            </div>
+            <div class="card-body">
+              <form method="post" class="need-validation" id="user_form">
+                <div class=" mb-3 mt-3">
+                  <label for="username" class="form-label">Username</label>
+                  <input type="text" class="form-control" id="username" placeholder="Masukan username" name="username" required>
+                </div>
+                <div class="mb-3">
+                  <label for="pwd" class="form-label">Password</label>
+                  <input type="password" class="form-control" id="pwd" placeholder="Masukan password" name="pass" required>
+                </div>
+                <div class=" mb-3 mt-3">
+                  <label for="nama" class="form-label">Nama Pengguna</label>
+                  <input type="text" class="form-control" id="nama" placeholder="Masukan nama" name="nama" required>
+                </div>
+                <div class=" mb-3 mt-3">
+                  <label for="alamat" class="form-label">Alamat Rumah</label>
+                  <textarea class="form-control" rows="5" id="alamat" name="alamat"></textarea>
+                </div>
+                <div class=" mb-3 mt-3">
+                  <label for="kota" class="form-label">Kota</label>
+                  <input type="text" class="form-control" id="kota" placeholder="Masukan kota" name="kota">
+                </div>
+                <div class=" mb-3 mt-3">
+                  <label for="notelp" class="form-label">Nomor Telepon</label>
+                  <input type="tel" class="form-control" pattern="[0-9]{10,13}"
+                    maxlength="13" id="notelp" placeholder="Masukan Nomor Telepon" name="notelp">
+                </div>
+                <div class=" mb-3 mt-3">
+                  <label for="level" class="form-label">Level</label>
+                  <select class="form-control" name="level" id="level">
+                    <option value="">Level</option>
+                    <option value="admin">Admin</option>
+                    <option value="bendahara">Bendahara</option>
+                    <option value="petugas">Petugas</option>
+                    <option value="warga">Warga</option>
+                  </select>
+                </div>
+                <div class=" mb-3 mt-3">
+                  <label for="tipe" class="form-label">Tipe</label>
+                  <select class="form-control" name="tipe" id="tipe">
+                    <option value="">Tipe</option>
+                    <option value="rt">RT</option>
+                    <option value="kost">Kost</option>
+                  </select>
+                </div>
+                <div class=" mb-3 mt-3">
+                  <label for="status" class="form-label">Status</label>
+                  <select class="form-control" name="status" id="status">
+                    <option value="aktif">Status</option>
+                    <option value="aktif">Aktif</option>
+                    <option value="tidak aktif">Tidak Aktif</option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary" name="tombol" value="user_add">Simpan Data</button>
+                <button type="button" class="btn btn-danger" id="batalTambah">Batal Tambah</button>
+              </form>
+            </div>
+          </div>
           <div class="card mb-4" id="tabelUser">
             <div class="card-header">
               <i class="fas fa-users me-1"></i>
