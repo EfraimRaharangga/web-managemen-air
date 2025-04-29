@@ -127,6 +127,7 @@ $level = $data_user[2];
           $e = explode('=', $_SERVER["REQUEST_URI"]);
           if (!empty($e[1])) {
             switch ($e[1]) {
+              case 'user_edit&user':
               case 'managemen-user':
                 $h1 = "Management User";
                 $li = "Menu untuk CRUD user";
@@ -282,6 +283,20 @@ $level = $data_user[2];
                       </div>';
               }
             }
+          } else if (isset($_GET['page'])) {
+            $p = $_GET['page'];
+            if ($p == 'user_edit') {
+              $username = $_GET['user'];
+              $q = mysqli_query($koneksi, "SELECT password,nama,alamat,kota,noTelp,tipe,status FROM user WHERE username='$username'");
+              $d = mysqli_fetch_row($q);
+              $password = $d[0];
+              $nama = $d[1];
+              $alamat = $d[2];
+              $kota = $d[3];
+              $noTelp = $d[4];
+              $tipe = $d[5];
+              $status = $d[6];
+            }
           } ?>
           <div class="card mb-4" id="tambahUser">
             <div class="card-header">
@@ -292,45 +307,53 @@ $level = $data_user[2];
               <form method="post" class="need-validation" id="user_form">
                 <div class=" mb-3 mt-3">
                   <label for="username" class="form-label">Username</label>
-                  <input type="text" class="form-control" id="username" placeholder="Masukan username" name="username" required>
+                  <input type="text" value="<?php echo $username ?>" class="form-control" id="username" placeholder="Masukan username" name="username" required>
                 </div>
                 <div class="mb-3">
                   <label for="pwd" class="form-label">Password</label>
-                  <input type="password" class="form-control" id="pwd" placeholder="Masukan password" name="pass" required>
+                  <input type="password" value="<?php echo $password ?>" class="form-control" id="pwd" placeholder="Masukan password" name="pass" required>
                 </div>
                 <div class=" mb-3 mt-3">
                   <label for="nama" class="form-label">Nama Pengguna</label>
-                  <input type="text" class="form-control" id="nama" placeholder="Masukan nama" name="nama" required>
+                  <input type="text" value="<?php echo $nama ?>" class="form-control" id="nama" placeholder="Masukan nama" name="nama" required>
                 </div>
                 <div class=" mb-3 mt-3">
                   <label for="alamat" class="form-label">Alamat Rumah</label>
-                  <textarea class="form-control" rows="5" id="alamat" name="alamat"></textarea>
+                  <textarea class="form-control" rows="5" id="alamat" name="alamat"><?php echo $alamat ?></textarea>
                 </div>
                 <div class=" mb-3 mt-3">
                   <label for="kota" class="form-label">Kota</label>
-                  <input type="text" class="form-control" id="kota" placeholder="Masukan kota" name="kota">
+                  <input type="text" value="<?php echo $kota ?>" class="form-control" id="kota" placeholder="Masukan kota" name="kota">
                 </div>
                 <div class=" mb-3 mt-3">
                   <label for="notelp" class="form-label">Nomor Telepon</label>
                   <input type="tel" class="form-control" pattern="[0-9]{10,13}"
-                    maxlength="13" id="notelp" placeholder="Masukan Nomor Telepon" name="notelp">
+                    maxlength="13" id="notelp" value="<?php echo $noTelp ?>" placeholder="Masukan Nomor Telepon" name="notelp">
                 </div>
                 <div class=" mb-3 mt-3">
                   <label for="level" class="form-label">Level</label>
                   <select class="form-control" name="level" id="level">
                     <option value="">Level</option>
-                    <option value="admin">Admin</option>
-                    <option value="bendahara">Bendahara</option>
-                    <option value="petugas">Petugas</option>
-                    <option value="warga">Warga</option>
+                    <?php
+                    $levelArray = ['admin', 'bendahara', 'petugas', 'warga'];
+                    foreach ($levelArray as $lv) {
+                      ($lv == $level) ? $sel = "SELECTED" : $sel = "";
+                      echo "<option value=\"$lv\" $sel>$lv</option>";
+                    }
+                    ?>
                   </select>
                 </div>
                 <div class=" mb-3 mt-3">
                   <label for="tipe" class="form-label">Tipe</label>
                   <select class="form-control" name="tipe" id="tipe">
                     <option value="">Tipe</option>
-                    <option value="rt">RT</option>
-                    <option value="kost">Kost</option>
+                    <?php
+                    $tipeArray = ['rt', 'kos'];
+                    foreach ($tipeArray as $tp) {
+                      ($tp == $tipe) ? $sel = "SELECTED" : $sel = "";
+                      echo "<option value=\"$lv\" $sel>$tp</option>";
+                    }
+                    ?>
                   </select>
                 </div>
                 <div class=" mb-3 mt-3">
@@ -342,7 +365,7 @@ $level = $data_user[2];
                   </select>
                 </div>
                 <button type="submit" class="btn btn-primary" name="tombol" value="user_add">Simpan Data</button>
-                <button type="button" class="btn btn-danger" id="batalTambah">Batal Tambah</button>
+                <a href="dashboard.php?page=managemen-user"><button type="button" class="btn btn-danger" id="batalTambah">Batal Tambah</button></a>
               </form>
             </div>
           </div>
@@ -366,7 +389,7 @@ $level = $data_user[2];
                     <th>Modifikasi</th>
                   </tr>
                 </thead>
-                <tbody>
+                <a>
                   <?php
                   $q = mysqli_query($koneksi, "SELECT * FROM user ORDER BY level ASC");
                   while ($d = mysqli_fetch_row($q)) {
@@ -390,13 +413,14 @@ $level = $data_user[2];
                     <td>$tipe</td>
                     <td>$status</td>
                     <td>
-                    <button type=\"button\" class=\"btn btn-outline-success\">Edit</button>
+                    <a href=\"dashboard.php?page=user_edit&user=$user\"><button type=\"button\" class=\"btn btn-outline-success\">Edit</button></a>
                     <button type=\"button\" class=\"btn btn-outline-danger\">Hapus</button>
                     </td>
                   </tr>";
                   }
                   ?>
-                </tbody>
+
+                  </tbody>
               </table>
             </div>
           </div>
