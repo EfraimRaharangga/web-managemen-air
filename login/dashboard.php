@@ -1,4 +1,7 @@
 <?php
+
+use function Laravel\Prompts\password;
+
 session_start();
 if (empty($_SESSION['user']) && empty($_SESSION['pass'])) {
   echo "<script>window.location.replace('../index.php')</script>";
@@ -91,12 +94,16 @@ $level = $data_user[2];
           <div class="nav">
             <div class="sb-sidenav-menu-heading">Core</div>
             <?php
+
+            // switch case merubah menu kiri 
             print navLink("Dashboard", "main");
             switch ($level) {
               case 'admin':
                 print navLink("Management User", "managemen-user"); //done
               case 'bendahara':
                 print navLink("Ubah Datameter Warga", "ubah-datameter-warga"); //done
+                print navLink("Transaksi Pembayaran", "transaksi-pembayaran-warga"); //done
+                print navLink("Managemen Tarif", "managemen-tarif"); //done
                 print navLink("Pembayaran Warga", "pembayaran-warga"); //done
                 print navLink("Lihat Pemakaian Warga", "pemakaian-warga"); //done
                 break;
@@ -124,6 +131,8 @@ $level = $data_user[2];
       <main>
         <div class="container-fluid px-4">
           <?php
+
+          // switch case merubah judul dan penjelasan 
           $e = explode('=', $_SERVER["REQUEST_URI"]);
           if (!empty($e[1])) {
             switch ($e[1]) {
@@ -163,6 +172,10 @@ $level = $data_user[2];
               case 'ubah-datameter-bulan':
                 $h1 = "Ubah Datameter Warga Sebulan";
                 $li = "Mengubah Datameter Warga Satu Bulan";
+                break;
+              case 'managemen-tarif':
+                $h1 = "Manajemen Tarif";
+                $li = "Menu untuk mengelola data tarif";
                 break;
               default:
                 $h1 = "Dashboard";
@@ -251,43 +264,123 @@ $level = $data_user[2];
               </div>
             </div>
           </div>
-          <?php if (isset($_POST['tombol'])) {
-            $user = $_POST['username'];
-            $pass = password_hash($_POST['pass'], PASSWORD_DEFAULT);
-            $nama = $_POST['nama'];
-            $kota = $_POST['kota'];
-            $alamat = $_POST['alamat'];
-            $noTelp = $_POST['notelp'];
-            $level = $_POST['level'];
-            $tipe = $_POST['tipe'];
-            $status = $_POST['status'];
+          <?php
+          // ketika tombol ditekan 
+          if (isset($_POST['tombol'])) {
+            $tombol = $_POST['tombol'];
 
-            $qc = mysqli_query($koneksi, "SELECT username FROM user WHERE username='$user'");
-            if (mysqli_num_rows($qc)) {
+            // switch case tergantung post dari tombol
+            switch ($tombol) {
+              // tombol ditambah 
+              case 'user_add':
 
-              echo "<div class=\"alert alert-warning alert-dismissible\">
+                // ambil data dari post 
+                $user = $_POST['username'];
+                $pass = password_hash($_POST['pass'], PASSWORD_DEFAULT);
+                $nama = $_POST['nama'];
+                $kota = $_POST['kota'];
+                $alamat = $_POST['alamat'];
+                $noTelp = $_POST['notelp'];
+                $level = $_POST['level'];
+                $tipe = $_POST['tipe'];
+                $status = $_POST['status'];
+
+                // upload data 
+                $qc = mysqli_query($koneksi, "SELECT username FROM user WHERE username='$user'");
+
+                // cek apakah user sudah ada 
+                if (mysqli_num_rows($qc)) {
+                  echo "<div class=\"alert alert-warning alert-dismissible\">
                       <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
                       <strong>Username $user sudah ada!</strong> Coba gunakan user lainnya...
                       </div>";
-            } else {
-              mysqli_query($koneksi, "INSERT INTO user (username,password,nama,alamat,kota,level,tipe,status,noTelp) VALUES ('$user','$pass','$nama','$alamat','$kota','$level','$tipe','$status','$noTelp')");
-              if (mysqli_affected_rows($koneksi) > 0) {
-                echo "<div class=\"alert alert-success alert-dismissible\">
+                } else {
+                  mysqli_query($koneksi, "INSERT INTO user (username,password,nama,alamat,kota,level,tipe,status,noTelp) VALUES ('$user','$pass','$nama','$alamat','$kota','$level','$tipe','$status','$noTelp')");
+
+                  // cek apakah data berhasil terupload 
+                  if (mysqli_affected_rows($koneksi) > 0) {
+                    echo "<div class=\"alert alert-success alert-dismissible\">
                       <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
-                      <strong>Data Berhasil Masuk!</strong> User $level berhasil ditambahkan.
+                      <strong>Data Berhasil Masuk!</strong> User dengan role $level berhasil ditambahkan.
                       </div>";
-              } else {
-                echo '<div class="alert alert-danger alert-dismissible">
+                  } else {
+                    echo '<div class="alert alert-danger alert-dismissible">
                       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                       <strong>Data Gagal Masuk!</strong> Mohon maaf data yang anda gagal ditambahkan.
                       </div>';
-              }
+                  }
+                }
+                break;
+
+              // tombol diedit 
+              case 'user_edit':
+
+                // ambil data dari post 
+                $user = $_POST['username'];
+                $pass = $_POST['pass'];
+                $pass2 = password_hash($_POST['pass'], PASSWORD_DEFAULT);
+                $nama = $_POST['nama'];
+                $kota = $_POST['kota'];
+                $alamat = $_POST['alamat'];
+                $noTelp = $_POST['notelp'];
+                $level = $_POST['level'];
+                $tipe = $_POST['tipe'];
+                $status = $_POST['status'];
+
+                // ambil password dari database 
+                $qcp = mysqli_query($koneksi, "SELECT password FROM user WHERE username='$user'");
+                $dcp = mysqli_fetch_array($qcp);
+                $pass_db = $dcp[0];
+
+                // bandingkan password jika lalu upload data 
+                if ($pass == $pass_db) {
+                  mysqli_query($koneksi, "UPDATE user SET nama='$nama',alamat='$alamat',kota='$kota',noTelp='$noTelp', level='$level',tipe='$tipe',status='$status' WHERE username='$user'");
+                } else {
+                  mysqli_query($koneksi, "UPDATE user SET password='$pass2',nama='$nama',alamat='$alamat',kota='$kota',noTelp='$noTelp', level='$level',tipe='$tipe',status='$status' WHERE username='$user'");
+                }
+
+                // cek apakah data berhasil terupload 
+                if (mysqli_affected_rows($koneksi) > 0) {
+                  echo "<div class=\"alert alert-success alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Berhasil Diedit!</strong> User berhasil diedit.
+                    </div>";
+                } else {
+                  echo '<div class="alert alert-warning alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <strong>Data Tidak Diubah</strong> Mohon maaf anda tidak mengedit user.
+                    </div>';
+                }
+                break;
+
+              // tomol hapus 
+              case 'user_hapus':
+
+                // hapus user
+                $user = $_POST['user'];
+                mysqli_query($koneksi, "DELETE FROM user WHERE username='$user'");
+
+                // cek apakah user berhasil dihapus 
+                if (mysqli_affected_rows($koneksi) > 0) {
+                  echo "<div class=\"alert alert-success alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Berhasil Dihapus!</strong> Data dengan username $user berhasil dihapus.
+                    </div>";
+                } else {
+                  echo '<div class="alert alert-warning alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <strong>Data Gagal Dihapus</strong> Data dengan username $user gagal dihapus.
+                    </div>';
+                }
+                break;
+              default:
+                break;
             }
           } else if (isset($_GET['page'])) {
             $p = $_GET['page'];
             if ($p == 'user_edit') {
               $username = $_GET['user'];
-              $q = mysqli_query($koneksi, "SELECT password,nama,alamat,kota,noTelp,tipe,status FROM user WHERE username='$username'");
+              $q = mysqli_query($koneksi, "SELECT password,nama,alamat,kota,noTelp,tipe,status,level FROM user WHERE username='$username'");
               $d = mysqli_fetch_row($q);
               $password = $d[0];
               $nama = $d[1];
@@ -296,15 +389,17 @@ $level = $data_user[2];
               $noTelp = $d[4];
               $tipe = $d[5];
               $status = $d[6];
+              $levl = $d[7];
             }
-          } ?>
+          }
+          ?>
           <div class="card mb-4" id="tambahUser">
             <div class="card-header">
               <i class="fas fa-users me-1"></i>
               Tambah User Baru
             </div>
             <div class="card-body">
-              <form method="post" class="need-validation" id="user_form">
+              <form method="post" class="need-validation" id="user_form" action="dashboard.php?page=managemen-user">
                 <div class=" mb-3 mt-3">
                   <label for="username" class="form-label">Username</label>
                   <input type="text" value="<?php echo $username ?>" class="form-control" id="username" placeholder="Masukan username" name="username" required>
@@ -337,7 +432,7 @@ $level = $data_user[2];
                     <?php
                     $levelArray = ['admin', 'bendahara', 'petugas', 'warga'];
                     foreach ($levelArray as $lv) {
-                      ($lv == $level) ? $sel = "SELECTED" : $sel = "";
+                      ($lv == $levl) ? $sel = "SELECTED" : $sel = "";
                       echo "<option value=\"$lv\" $sel>$lv</option>";
                     }
                     ?>
@@ -349,9 +444,9 @@ $level = $data_user[2];
                     <option value="">Tipe</option>
                     <?php
                     $tipeArray = ['rt', 'kos'];
-                    foreach ($tipeArray as $tp) {
-                      ($tp == $tipe) ? $sel = "SELECTED" : $sel = "";
-                      echo "<option value=\"$lv\" $sel>$tp</option>";
+                    foreach ($tipeArray as $ta) {
+                      ($ta == $tipe) ? $sel = "SELECTED" : $sel = "";
+                      echo "<option value=\"$ta\" $sel>$ta</option>";
                     }
                     ?>
                   </select>
@@ -360,15 +455,46 @@ $level = $data_user[2];
                   <label for="status" class="form-label">Status</label>
                   <select class="form-control" name="status" id="status">
                     <option value="aktif">Status</option>
-                    <option value="aktif">Aktif</option>
-                    <option value="tidak aktif">Tidak Aktif</option>
+                    <?php
+                    $statusArray = ['aktif', 'tdk Aktif'];
+                    foreach ($statusArray as $sa) {
+                      ($sa == $status) ? $sel = "SELECTED" : $sel = "";
+                      echo "<option value=\"$sa\" $sel>$sa</option>";
+                    }
+                    ?>
                   </select>
                 </div>
-                <button type="submit" class="btn btn-primary" name="tombol" value="user_add">Simpan Data</button>
+                <button type="submit" class="btn btn-primary" id="tombolAcc" name="tombol" value="user_add">Simpan Data</button>
                 <a href="dashboard.php?page=managemen-user"><button type="button" class="btn btn-danger" id="batalTambah">Batal Tambah</button></a>
               </form>
             </div>
           </div>
+          <div class="modal" id="myModal">
+            <div class="modal-dialog">
+              <div class="modal-content">
+
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title">Konfirmasi Hapus Data</h4>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body">
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                  <form method="post">
+                    <button type="submit" name="tombol" value='user_hapus' class="btn btn-danger" data-bs-dismiss="modal">Konfirmasi</button>
+                  </form>
+                  <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Batal</button>
+                </div>
+
+              </div>
+            </div>
+          </div>
+
           <div class="card mb-4" id="tabelUser">
             <div class="card-header">
               <i class="fas fa-users me-1"></i>
@@ -399,8 +525,8 @@ $level = $data_user[2];
                     $alamat = $d[3];
                     $kota = $d[4];
                     $tlp = $d[8]; //8
-                    $level = $d[6];
-                    $tipe = $d[5]; //5
+                    $level = $d[5];
+                    $tipe = $d[6]; //5
                     $status = $d[7]; //7
 
                     echo "<tr>
@@ -414,7 +540,7 @@ $level = $data_user[2];
                     <td>$status</td>
                     <td>
                     <a href=\"dashboard.php?page=user_edit&user=$user\"><button type=\"button\" class=\"btn btn-outline-success\">Edit</button></a>
-                    <button type=\"button\" class=\"btn btn-outline-danger\">Hapus</button>
+                    <button type=\"button\" class=\"btn btn-outline-danger\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" data-user='$user'>Hapus</button>
                     </td>
                   </tr>";
                   }
