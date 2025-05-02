@@ -1,7 +1,4 @@
 <?php
-
-use function Laravel\Prompts\password;
-
 session_start();
 if (empty($_SESSION['user']) && empty($_SESSION['pass'])) {
   echo "<script>window.location.replace('../index.php')</script>";
@@ -13,6 +10,9 @@ $koneksi = $air->koneksi();
 
 $data_user = $air->data_user($_SESSION['user']);
 $level = $data_user[2];
+
+// mysqli_query($koneksi, "INSERT INTO tarif(kodeTarif,tipe,tarif,status) VALUES ('T1','rt',5000,1)");
+
 
 ?>
 
@@ -100,6 +100,10 @@ $level = $data_user[2];
             switch ($level) {
               case 'admin':
                 print navLink("Management User", "managemen-user"); //done
+                print navLink("Ubah Datameter Warga", "ubah-datameter-warga"); //done
+                print navLink("Pembayaran Warga", "pembayaran-warga"); //done
+                print navLink("Lihat Pemakaian Warga", "pemakaian-warga"); //done
+                break;
               case 'bendahara':
                 print navLink("Ubah Datameter Warga", "ubah-datameter-warga"); //done
                 print navLink("Transaksi Pembayaran", "transaksi-pembayaran-warga"); //done
@@ -276,11 +280,6 @@ $level = $data_user[2];
 
                 // ambil data dari post 
                 $user = $_POST['username'];
-                $pass = password_hash($_POST['pass'], PASSWORD_DEFAULT);
-                $nama = $_POST['nama'];
-                $kota = $_POST['kota'];
-                $alamat = $_POST['alamat'];
-                $noTelp = $_POST['notelp'];
                 $level = $_POST['level'];
                 $tipe = $_POST['tipe'];
                 $status = $_POST['status'];
@@ -310,6 +309,15 @@ $level = $data_user[2];
                       </div>';
                   }
                 }
+                break;
+              case 'tarif_add':
+
+                // ambil data dari post 
+                $kodeTarif = $_POST['kodeTarif'];
+                $tipeTarif = $_POST['tipeTarif'];
+                $tarif = $_POST['tarif'];
+                $statusTarif = $_POST['statusTarif'] ? 0 : 2;
+                var_dump($statusTarif);
                 break;
 
               // tombol diedit 
@@ -390,6 +398,8 @@ $level = $data_user[2];
               $tipe = $d[5];
               $status = $d[6];
               $levl = $d[7];
+            } else if ($p == 'managemen-tarif') {
+              $statusTarif = '';
             }
           }
           ?>
@@ -469,6 +479,57 @@ $level = $data_user[2];
               </form>
             </div>
           </div>
+
+          <div class="card mb-4" id="tambahTarif">
+            <div class="card-header">
+              <i class="fa-solid fa-hippo"></i>
+              Tambah Tarif Baru
+            </div>
+            <div class="card-body">
+              <form method="post" class="need-validation" id="user_form_tarif" action="dashboard.php?page=managemen-tarif">
+                <div class=" mb-3 mt-3">
+                  <label for="kodeTarif" class="form-label">Kode Tarif</label>
+                  <input type="text" value="<?php echo $kodeTarif ?>" class="form-control" id="kodeTarif" placeholder="Masukan Kode Tarif" name="kodeTarif" required>
+                </div>
+                <div class=" mb-3 mt-3">
+                  <label for="tipeTarif" class="form-label">Tipe Tarif</label>
+                  <select class="form-control" name="tipeTarif" id="tipeTarif">
+                    <option value="">Pilih Tipe</option>
+                    <?php
+                    $tipeTarifArray = ['kos', 'rumah'];
+                    foreach ($tipeTarifArray as $tp) {
+                      ($tp == $tipeTarif) ? $sel = "SELECTED" : $sel = "";
+                      echo "<option value=\"$tp\" $sel>$tp</option>";
+                    }
+                    ?>
+                  </select>
+                </div>
+                <div class=" mb-3 mt-3">
+                  <label for="tarif" class="form-label">Tarif</label>
+                  <input type="number" value="<?php echo $tarif ?>" class="form-control" id="tarif" placeholder="0" name="tarif">
+                </div>
+                <div class="form-check">
+                  <input type="radio" class="form-check-input" value="halo" name="statusTarif"> $st
+                  <label class="form-check-label" for="statusTarif"></label>
+                </div>
+                <?php
+                // untuk radio button 
+                $statusArray = ["Tdk Aktif", "Aktif"];
+                foreach ($statusArray as $st) {
+                  $st == $statusTarif ? $sel = "CHECKED" : '';
+                  $bool = array_search($st, $statusArray);
+                  echo "<div class=\"form-check\">
+                  <input type=\"radio\" class=\"form-check-input\" value='$st' name=\"statusTarif\"> $st
+                  <label class=\"form-check-label\" for=\"statusTarif\"></label>
+                  </div>";
+                }
+                ?>
+                <button type="submit" class="btn btn-primary mt-3" name="tombol" value="tarif_add">Simpan Data</button>
+                <a href="dashboard.php?page=managemen-tarif"><button type="button" class="btn btn-danger mt-3" id="batalTambahTarif">Batal Tambah</button></a>
+              </form>
+            </div>
+          </div>
+
           <div class="modal" id="myModal">
             <div class="modal-dialog">
               <div class="modal-content">
@@ -556,6 +617,7 @@ $level = $data_user[2];
 
           <div class="card mb-4" id="tabelTarif">
             <div class="card-header">
+<<<<<<< Updated upstream
               <i class="fas fa-charts-simple me-1"></i>
               Data Tarif
             </div>
@@ -567,25 +629,51 @@ $level = $data_user[2];
                     <th>Tipe Tarif</th>
                     <th>Tarif</th>
                     <th>Status</th>
+=======
+              <i class="fa-solid fa-address-book"></i>
+              Data Baru Cah
+            </div>
+            <div class="card-body">
+              <table id="datatablesSimple2">
+                <thead>
+                  <tr>
+                    <th>Kode Tarif</th>
+                    <th>Tipe</th>
+                    <th>Tarif</th>
+                    <th>Status</th>
+                    <th>Modifikasi</th>
+>>>>>>> Stashed changes
                   </tr>
                 </thead>
                 <a>
                   <?php
+<<<<<<< Updated upstream
 
                   // mengambil data tarif 
                   $q = mysqli_query($koneksi, "SELECT * FROM tarif ORDER BY level ASC");
+=======
+                  $q = mysqli_query($koneksi, "SELECT * FROM tarif ORDER BY kodeTarif ASC");
+>>>>>>> Stashed changes
                   while ($d = mysqli_fetch_row($q)) {
                     $kodeTarif = $d[0];
                     $tipeTarif = $d[1];
                     $tarif = $d[2];
                     $statusTarif = $d[3];
 
+<<<<<<< Updated upstream
                     // menampilkan data user 
+=======
+
+>>>>>>> Stashed changes
                     echo "<tr>
                     <td>$kodeTarif</td>
                     <td>$tipeTarif</td>
                     <td>$tarif</td>
+<<<<<<< Updated upstream
                     <td>$statusTarif</td>
+=======
+                    <td>$status</td>
+>>>>>>> Stashed changes
                     <td>
                     <a href=\"dashboard.php?page=tarif_edit&kode=$kodeTarif\"><button type=\"button\" class=\"btn btn-outline-success\">Edit</button></a>
                     <button type=\"button\" class=\"btn btn-outline-danger\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" data-tarif='$kodeTarif'>Hapus</button>
@@ -598,6 +686,10 @@ $level = $data_user[2];
               </table>
             </div>
           </div>
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
         </div>
       </main>
       <footer class="py-4 bg-light mt-auto">

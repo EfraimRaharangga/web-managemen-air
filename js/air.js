@@ -4,7 +4,9 @@ $(document).ready(function () {
   let get = url.split("=");
 
   // menghilangkan semua isi
-  $("#summary, #grafik, #tambahUser,#tabelUser").hide();
+  $(
+    "#summary, #grafik, #tambahUser,#tabelUser, #tabelTarif, #tambahTarif"
+  ).hide();
 
   // switch untuk menu sebelah kiri
   switch (get[1]) {
@@ -63,10 +65,21 @@ $(document).ready(function () {
       break;
     case "managemen-tarif&kodeTarif":
     case "managemen-tarif":
+      // menampilkan tabel tarif
       $("#tabelTarif").show();
-      $(".datatable-dropdown").append(
-        '<button type="button" class="btn btn-outline-success float-start me-2" id="new-tarif"><i class="fa-solid fa-user-plus"></i> User</button>'
-      );
+      $("#tabelTarif .card-body a")
+        .first()
+        .append(
+          '<button type="button" class="btn btn-outline-success float-start me-2" id="new-tarif"><i class="fa-solid fa-hippo"></i> Tarif </button>'
+        );
+
+      // tambahkan tabel
+      const datatablesSimple2 = document.getElementById("datatablesSimple2");
+      if (datatablesSimple2) {
+        new simpleDatatables.DataTable(datatablesSimple2);
+      }
+
+      // if untuk edit tabel
       if (get[1] == "tarif_edit&tarif") {
         $("#tambahTarif").show();
         $("#tabelTarif").hide();
@@ -76,6 +89,20 @@ $(document).ready(function () {
           `<input type="hidden" name="kodeTarif" value=${get[2]} ></input>`
         );
       }
+
+      // menambahkan tarif
+      $("#new-tarif").click(function (e) {
+        $("#tambahTarif").show();
+        $("#tabelTarif").hide();
+        $("#user_form input, #user_form text_area").show();
+        $("#tambahTarif input").val("");
+      });
+
+      // batal tambah
+      $("#batalTambahTarif").click(function (e) {
+        $("#tambahUser").hide();
+        $("#tabelUser").show();
+      });
       break;
     default:
       $("#summary, #grafik").show();
