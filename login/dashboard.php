@@ -517,6 +517,8 @@ $level = $data_user[2];
                 </thead>
                 <a>
                   <?php
+
+                  // mengambil data tarif 
                   $q = mysqli_query($koneksi, "SELECT * FROM user ORDER BY level ASC");
                   while ($d = mysqli_fetch_row($q)) {
                     $user = $d[0];
@@ -529,6 +531,7 @@ $level = $data_user[2];
                     $tipe = $d[6]; //5
                     $status = $d[7]; //7
 
+                    // menampilkan data user 
                     echo "<tr>
                     <td>$user</td>
                     <td>$nama</td>
@@ -541,6 +544,51 @@ $level = $data_user[2];
                     <td>
                     <a href=\"dashboard.php?page=user_edit&user=$user\"><button type=\"button\" class=\"btn btn-outline-success\">Edit</button></a>
                     <button type=\"button\" class=\"btn btn-outline-danger\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" data-user='$user'>Hapus</button>
+                    </td>
+                  </tr>";
+                  }
+                  ?>
+
+                  </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card mb-4" id="tabelTarif">
+            <div class="card-header">
+              <i class="fas fa-charts-simple me-1"></i>
+              Data Tarif
+            </div>
+            <div class="card-body">
+              <table id="datatablesSimple">
+                <thead>
+                  <tr>
+                    <th>Kode Tarif</th>
+                    <th>Tipe Tarif</th>
+                    <th>Tarif</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <a>
+                  <?php
+
+                  // mengambil data tarif 
+                  $q = mysqli_query($koneksi, "SELECT * FROM tarif ORDER BY level ASC");
+                  while ($d = mysqli_fetch_row($q)) {
+                    $kodeTarif = $d[0];
+                    $tipeTarif = $d[1];
+                    $tarif = $d[2];
+                    $statusTarif = $d[3];
+
+                    // menampilkan data user 
+                    echo "<tr>
+                    <td>$kodeTarif</td>
+                    <td>$tipeTarif</td>
+                    <td>$tarif</td>
+                    <td>$statusTarif</td>
+                    <td>
+                    <a href=\"dashboard.php?page=tarif_edit&kode=$kodeTarif\"><button type=\"button\" class=\"btn btn-outline-success\">Edit</button></a>
+                    <button type=\"button\" class=\"btn btn-outline-danger\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" data-tarif='$kodeTarif'>Hapus</button>
                     </td>
                   </tr>";
                   }
