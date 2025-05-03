@@ -394,6 +394,29 @@ $level = $data_user[2];
                 }
                 break;
 
+              // tombol diedit 
+              case 'tarif_edit':
+                $kodeTarif = $_POST['kodeTarif'];
+                $tarif = $_POST['tarif'];
+                $statusTarif = isset($_POST['statusTarif']) ? '1' : 0;
+                $tipeTarif = $_POST['tipeTarif'];
+
+                // upload data 
+                mysqli_query($koneksi, "UPDATE tarif SET kodeTarif='$kodeTarif',tarif='$tarif',status='$statusTarif',tipe='$tipeTarif' WHERE kodeTarif='$kodeTarif'");
+
+                if (mysqli_affected_rows($koneksi) > 0) {
+                  echo "<div class=\"alert alert-success alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Berhasil Diedit!</strong> Tarih telah berubah.
+                    </div>";
+                } else {
+                  echo '<div class="alert alert-warning alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <strong>Data Tidak Dirubah</strong> Mohon maaf anda tidak mengedit user.
+                    </div>';
+                }
+                break;
+
               // tomol hapus 
               case 'user_hapus':
 
@@ -436,21 +459,38 @@ $level = $data_user[2];
                 break;
             }
           } else if (isset($_GET['page'])) {
+
+            // memberikan variabel sesuai halaman 
             $p = $_GET['page'];
-            if ($p == 'user_edit') {
-              $username = $_GET['user'];
-              $q = mysqli_query($koneksi, "SELECT password,nama,alamat,kota,noTelp,tipe,status,level FROM user WHERE username='$username'");
-              $d = mysqli_fetch_row($q);
-              $password = $d[0];
-              $nama = $d[1];
-              $alamat = $d[2];
-              $kota = $d[3];
-              $noTelp = $d[4];
-              $tipe = $d[5];
-              $status = $d[6];
-              $levl = $d[7];
-            } else if ($p == 'managemen-tarif') {
-              $statusTarif = '';
+            switch ($p) {
+              case 'user_edit':
+                $username = $_GET['user'];
+                $q = mysqli_query($koneksi, "SELECT password,nama,alamat,kota,noTelp,tipe,status,level FROM user WHERE username='$username'");
+                $d = mysqli_fetch_row($q);
+                $password = $d[0];
+                $nama = $d[1];
+                $alamat = $d[2];
+                $kota = $d[3];
+                $noTelp = $d[4];
+                $tipe = $d[5];
+                $status = $d[6];
+                $levl = $d[7];
+                break;
+              case 'tarif_edit':
+                // ambil data ke database 
+                $kode = $_GET['kode'];
+                $q = mysqli_query($koneksi, "SELECT * FROM tarif WHERE kodeTarif='$kode'");
+                $d = mysqli_fetch_row($q);
+
+                // jadikan variabel 
+                $kodeTarif = $d[0];
+                $tipeTarif = $d[1];
+                $tarif = $d[2];
+                $statusTarif = $d[3];
+                break;
+              case 'managemen-tarif':
+                $statusTarif = '';
+                break;
             }
           }
           ?>
@@ -537,7 +577,7 @@ $level = $data_user[2];
               Tambah Tarif Baru
             </div>
             <div class="card-body">
-              <form method="post" class="need-validation" id="user_form_tarif" action="dashboard.php?page=managemen-tarif">
+              <form method="post" class="need-validation" id="tarif_form" action="dashboard.php?page=managemen-tarif">
                 <div class=" mb-3 mt-3">
                   <label for="kodeTarif" class="form-label">Kode Tarif</label>
                   <input type="text" value="<?php echo $kodeTarif ?>" class="form-control" id="kodeTarif" placeholder="Masukan Kode Tarif" name="kodeTarif" required>

@@ -63,7 +63,7 @@ $(document).ready(function () {
     case "pembayaran-warga":
       $("#sumary").show();
       break;
-    case "managemen-tarif&kodeTarif":
+    case "tarif_edit&kode":
     case "managemen-tarif":
       // menampilkan tabel tarif
       $("#tabelTarif").show();
@@ -80,10 +80,10 @@ $(document).ready(function () {
       }
 
       // if untuk edit tabel
-      if (get[1] == "tarif_edit&tarif") {
+      if (get[1] == "tarif_edit&kode") {
         $("#tambahTarif").show();
         $("#tabelTarif").hide();
-        $("#tarif_form button").val("user_edit");
+        $("#tarif_form button").val("tarif_edit");
         $("#tarif_form input[name='kodeTarif']").attr("disabled", true);
         $("#tarif_form").append(
           `<input type="hidden" name="kodeTarif" value=${get[2]} ></input>`
