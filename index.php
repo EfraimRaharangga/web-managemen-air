@@ -33,6 +33,12 @@ $koneksi = $air->koneksi();
   body {
     background-image: url('assets/img/wave.png');
   }
+
+  .grayscale {
+    filter: grayscale(100%) brightness(70%);
+    /* Ubah nilai untuk intensitas */
+    transition: filter 0.3s ease;
+  }
 </style>
 </head>
 
@@ -106,8 +112,9 @@ $koneksi = $air->koneksi();
                         class="form-check-label"
                         for="inputRememberPassword">Remember Password</label>
                     </div>
-                    <div class="d-grid">
-                      <button type="submit" name="tombol" class="btn btn-primary btn-block">Login</button>
+                    <div class="d-flex justify-content-between">
+                      <button type="submit" name="tombol" class="btn btn-primary flex-fill btn-block me-1">Login</button>
+                      <button type="button" name="profile" class="btn btn-warning btn-block flex-fill" data-bs-toggle="modal" data-bs-target="#myModal">Profile</button>
                     </div>
                   </form>
                 </div>
@@ -117,6 +124,7 @@ $koneksi = $air->koneksi();
         </div>
     </div>
     </main>
+
   </div>
   <div id="layoutAuthentication_footer">
     <footer class="py-4 bg-light mt-auto">
@@ -134,10 +142,60 @@ $koneksi = $air->koneksi();
     </footer>
   </div>
   </div>
-  <script
-    src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
-    crossorigin="anonymous"></script>
-  <script src="js/scripts.js"></script>
+  <!-- The Modal -->
+  <div class="modal fade" id="myModal">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h4 class="modal-title">Profil Kami</h4>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <!-- Carousel -->
+          <div id="demo" class="carousel slide" data-bs-ride="carousel">
+
+            <!-- Indicators/dots -->
+            <div class="carousel-indicators">
+              <button type="button" data-bs-target="#demo" data-bs-slide-to="0" class="active"></button>
+              <button type="button" data-bs-target="#demo" data-bs-slide-to="1"></button>
+            </div>
+
+            <!-- The slideshow/carousel -->
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img src="assets/img/yogi.jpg" alt="Yogi" class="d-block grayscale" style="width:100%">
+                <div class="carousel-caption">
+                  <h3>Yogi Makmur Ardhiansyah | 4.31.23.2.23</h3>
+                  <h4>SMA Rembang</h4>
+                </div>
+              </div>
+              <div class="carousel-item">
+                <img src="assets/img/aim.jpeg" alt="Aim" class="d-block grayscale" style="width:100%">
+                <div class="carousel-caption">
+                  <h3>Efraim Raharangga | 4.31.23.2.06</h3>
+                  <h4>SMK Negeri 7 Semarang</h4>
+                  <p>Jurusan Sistem Informatika Jaringan dan Aplikasi</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Left and right controls/icons -->
+            <button class="carousel-control-prev" type="button" data-bs-target="#demo" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon"></span>
+            </button>
+            <button class="carousel-control-next" type="button" data-bs-target="#demo" data-bs-slide="next">
+              <span class="carousel-control-next-icon"></span>
+            </button>
+          </div>
+        </div>
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+          crossorigin="anonymous"></script>
+        <script src="js/scripts.js"></script>
 </body>
 
 </html>
