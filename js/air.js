@@ -47,10 +47,10 @@ $(document).ready(function () {
       });
 
       // modal untuk konfirmasi hapus
-      $("button[data-bs-toggle='modal']").click(function (e) {
+      $(".tombolHapusUser").click(function (e) {
         let user = $(this).attr("data-user");
         $("#myModal .modal-body").text(
-          `Yakin menghapus Data dengan username ${user}`
+          `Yakin menghapus data dengan username ${user}`
         );
         $(".modal-footer form").append(
           `<input type="hidden" name="user" value="${user}"> `
@@ -103,9 +103,27 @@ $(document).ready(function () {
         $("#tambahUser").hide();
         $("#tabelUser").show();
       });
+
+      // merubah value tombol hapus
+      $(".modal-footer form button").click(function () {
+        // over
+        $(this).attr("value", "tarif_hapus");
+      });
+
+      // modal untuk konfirmasi hapus
+      $(".tombolHapusTarif").click(function (e) {
+        console.log("1");
+        let kodeTarif = $(this).attr("data-tarif");
+        $("#myModal .modal-body").text(
+          `Yakin menghapus Data dengan kode tarif ${kodeTarif}`
+        );
+        $(".modal-footer form").append(
+          `<input type="hidden" name="tarif" value="${kodeTarif}"> `
+        );
+      });
+
       break;
     default:
       $("#summary, #grafik").show();
-      console.log("uy");
   }
 });

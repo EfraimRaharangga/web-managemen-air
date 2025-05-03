@@ -1,4 +1,7 @@
 <?php
+
+use function PHPUnit\Framework\isEmpty;
+
 session_start();
 if (empty($_SESSION['user']) && empty($_SESSION['pass'])) {
   echo "<script>window.location.replace('../index.php')</script>";
@@ -280,6 +283,11 @@ $level = $data_user[2];
 
                 // ambil data dari post 
                 $user = $_POST['username'];
+                $pass = password_hash($_POST['pass'], PASSWORD_DEFAULT);
+                $nama = $_POST['nama'];
+                $kota = $_POST['kota'];
+                $alamat = $_POST['alamat'];
+                $noTelp = $_POST['notelp'];
                 $level = $_POST['level'];
                 $tipe = $_POST['tipe'];
                 $status = $_POST['status'];
@@ -316,8 +324,33 @@ $level = $data_user[2];
                 $kodeTarif = $_POST['kodeTarif'];
                 $tipeTarif = $_POST['tipeTarif'];
                 $tarif = $_POST['tarif'];
-                $statusTarif = $_POST['statusTarif'] ? 0 : 2;
-                var_dump($statusTarif);
+                $statusTarif = isset($_POST['statusTarif']) ? 1 : 0;
+
+                // upload data 
+                $qc = mysqli_query($koneksi, "SELECT kodeTarif FROM tarif WHERE kodeTarif='$kodeTarif'");
+
+                // cek apakah user sudah ada 
+                if (mysqli_num_rows($qc)) {
+                  echo "<div class=\"alert alert-warning alert-dismissible\">
+                      <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                      <strong>Kode Tarif $kodeTarif sudah ada!</strong> Coba gunakan kode tarif lainnya...
+                      </div>";
+                } else {
+                  mysqli_query($koneksi, "INSERT INTO tarif (kodeTarif,tipe,tarif,status) VALUES ('$kodeTarif','$tipeTarif','$tarif','$statusTarif')");
+
+                  // cek apakah data berhasil terupload 
+                  if (mysqli_affected_rows($koneksi) > 0) {
+                    echo "<div class=\"alert alert-success alert-dismissible\">
+                      <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                      <strong>Data Berhasil Masuk!</strong> Tarif dengan tipe $tipeTarif berhasil ditambahkan.
+                      </div>";
+                  } else {
+                    echo '<div class="alert alert-danger alert-dismissible">
+                      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      <strong>Data Gagal Masuk!</strong> Mohon maaf data yang anda gagal ditambahkan.
+                      </div>';
+                  }
+                }
                 break;
 
               // tombol diedit 
@@ -379,6 +412,24 @@ $level = $data_user[2];
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     <strong>Data Gagal Dihapus</strong> Data dengan username $user gagal dihapus.
                     </div>';
+                }
+                break;
+              case 'tarif_hapus':
+                // hapus user
+                $kode = $_POST['tarif'];
+                mysqli_query($koneksi, "DELETE FROM tarif WHERE kodeTarif='$kode'");
+
+                // cek apakah user berhasil dihapus 
+                if (mysqli_affected_rows($koneksi) > 0) {
+                  echo "<div class=\"alert alert-success alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Berhasil Dihapus!</strong> Data dengan kode tarif $kode berhasil dihapus.
+                    </div>";
+                } else {
+                  echo "<div class=\"alert alert-warning alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Gagal Dihapus</strong> Data dengan kode tarif $kode gagal dihapus.
+                    </div>";
                 }
                 break;
               default:
@@ -453,7 +504,7 @@ $level = $data_user[2];
                   <select class="form-control" name="tipe" id="tipe">
                     <option value="">Tipe</option>
                     <?php
-                    $tipeArray = ['rt', 'kos'];
+                    $tipeArray = ['rumah', 'kos'];
                     foreach ($tipeArray as $ta) {
                       ($ta == $tipe) ? $sel = "SELECTED" : $sel = "";
                       echo "<option value=\"$ta\" $sel>$ta</option>";
@@ -506,24 +557,14 @@ $level = $data_user[2];
                 </div>
                 <div class=" mb-3 mt-3">
                   <label for="tarif" class="form-label">Tarif</label>
-                  <input type="number" value="<?php echo $tarif ?>" class="form-control" id="tarif" placeholder="0" name="tarif">
+                  <input type="number" value="<?php echo isset($tarif) ? $tarif : ''; ?>" class="form-control" id="tarif" placeholder="0" name="tarif">
                 </div>
-                <div class="form-check">
-                  <input type="radio" class="form-check-input" value="halo" name="statusTarif"> $st
-                  <label class="form-check-label" for="statusTarif"></label>
+
+                <div class="form-check form-switch">
+                  <input class="form-check-input" value="aktif" type="checkbox" id="mySwitch" name="statusTarif" <?php if ($statusTarif == 1) echo 'checked' ?>>
+                  <label class="form-check-label" for="mySwitch">Aktif</label>
                 </div>
-                <?php
-                // untuk radio button 
-                $statusArray = ["Tdk Aktif", "Aktif"];
-                foreach ($statusArray as $st) {
-                  $st == $statusTarif ? $sel = "CHECKED" : '';
-                  $bool = array_search($st, $statusArray);
-                  echo "<div class=\"form-check\">
-                  <input type=\"radio\" class=\"form-check-input\" value='$st' name=\"statusTarif\"> $st
-                  <label class=\"form-check-label\" for=\"statusTarif\"></label>
-                  </div>";
-                }
-                ?>
+
                 <button type="submit" class="btn btn-primary mt-3" name="tombol" value="tarif_add">Simpan Data</button>
                 <a href="dashboard.php?page=managemen-tarif"><button type="button" class="btn btn-danger mt-3" id="batalTambahTarif">Batal Tambah</button></a>
               </form>
@@ -604,7 +645,7 @@ $level = $data_user[2];
                     <td>$status</td>
                     <td>
                     <a href=\"dashboard.php?page=user_edit&user=$user\"><button type=\"button\" class=\"btn btn-outline-success\">Edit</button></a>
-                    <button type=\"button\" class=\"btn btn-outline-danger\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" data-user='$user'>Hapus</button>
+                    <button type=\"button\" class=\"btn btn-outline-danger tombolHapusUser\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" data-user='$user'>Hapus</button>
                     </td>
                   </tr>";
                   }
@@ -617,19 +658,6 @@ $level = $data_user[2];
 
           <div class="card mb-4" id="tabelTarif">
             <div class="card-header">
-<<<<<<< Updated upstream
-              <i class="fas fa-charts-simple me-1"></i>
-              Data Tarif
-            </div>
-            <div class="card-body">
-              <table id="datatablesSimple">
-                <thead>
-                  <tr>
-                    <th>Kode Tarif</th>
-                    <th>Tipe Tarif</th>
-                    <th>Tarif</th>
-                    <th>Status</th>
-=======
               <i class="fa-solid fa-address-book"></i>
               Data Baru Cah
             </div>
@@ -642,41 +670,25 @@ $level = $data_user[2];
                     <th>Tarif</th>
                     <th>Status</th>
                     <th>Modifikasi</th>
->>>>>>> Stashed changes
                   </tr>
                 </thead>
                 <a>
                   <?php
-<<<<<<< Updated upstream
-
-                  // mengambil data tarif 
-                  $q = mysqli_query($koneksi, "SELECT * FROM tarif ORDER BY level ASC");
-=======
                   $q = mysqli_query($koneksi, "SELECT * FROM tarif ORDER BY kodeTarif ASC");
->>>>>>> Stashed changes
                   while ($d = mysqli_fetch_row($q)) {
                     $kodeTarif = $d[0];
                     $tipeTarif = $d[1];
                     $tarif = $d[2];
-                    $statusTarif = $d[3];
+                    $statusTarif = $d[3] == 1 ? 'aktif' : 'tidak aktif';
 
-<<<<<<< Updated upstream
-                    // menampilkan data user 
-=======
-
->>>>>>> Stashed changes
                     echo "<tr>
                     <td>$kodeTarif</td>
                     <td>$tipeTarif</td>
                     <td>$tarif</td>
-<<<<<<< Updated upstream
                     <td>$statusTarif</td>
-=======
-                    <td>$status</td>
->>>>>>> Stashed changes
                     <td>
                     <a href=\"dashboard.php?page=tarif_edit&kode=$kodeTarif\"><button type=\"button\" class=\"btn btn-outline-success\">Edit</button></a>
-                    <button type=\"button\" class=\"btn btn-outline-danger\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" data-tarif='$kodeTarif'>Hapus</button>
+                    <button type=\"button\" class=\"btn btn-outline-danger tombolHapusTarif\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" data-tarif='$kodeTarif'>Hapus</button>
                     </td>
                   </tr>";
                   }
@@ -686,10 +698,6 @@ $level = $data_user[2];
               </table>
             </div>
           </div>
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
         </div>
       </main>
       <footer class="py-4 bg-light mt-auto">
@@ -711,6 +719,8 @@ $level = $data_user[2];
     src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
     crossorigin="anonymous"></script>
   <script src="../js/scripts.js"></script>
+  <script src="../js/jquery-3.7.1.js"></script>
+  <script src="../js/air.js"></script>
 
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"
@@ -720,8 +730,6 @@ $level = $data_user[2];
   <script
     src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
     crossorigin="anonymous"></script>
-  <script src="../js/jquery-3.7.1.js"></script>
-  <script src="../js/air.js"></script>
   <script src="../js/datatables-simple-demo.js"></script>
 </body>
 
