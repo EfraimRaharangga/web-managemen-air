@@ -353,7 +353,29 @@ $level = $data_user[2];
                 }
                 break;
 
-              // tombol diedit 
+              // tombol meter ditambahkan 
+              case 'meter_add':
+
+                // ambil nilai dari post 
+                $userWarga = $_POST['wargaMeter'];
+                $meterAwal = $_POST['meterAwal'];
+                $meterAkhir = $_POST['meterAkhir'];
+                $pemakaian - $meterAkhir - $meterAwal;
+
+                // cek apakah nilai meter akhir lebih besar atau tidak 
+                if ($pemakaian < 0) {
+                  echo '<div class="alert alert-danger alert-dismissible">
+                      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                      <strong>Data Masukan Salah!</strong> Mohon maaf data meter awal lebih besar daripada meter akhir.
+                      </div>';
+                } else {
+                  $kodeTarif = $air->ambilKodeTarifDarIUsername($userWarga);
+                  // $tagihan = ;
+                  mysqli_query($koneksi, "INSERT INTO pemakaian (username,meterAwal,meterAkhir,pemakaian,tgl,waktu,kodeTarif,tagihan,status) VALUES ('$userWarga','$meterAwal','$meterAkhir','$pemakaian',CURRENT_DATE(),CURRENT_TIME(),'$kodeTarif',)");
+                }
+                break;
+
+              // tombol user diedit 
               case 'user_edit':
 
                 // ambil data dari post 
@@ -611,6 +633,43 @@ $level = $data_user[2];
             </div>
           </div>
 
+          <div class="card mb-4" id="tambahMeter">
+            <div class="card-header">
+              <i class="fa-solid fa-otter"></i>
+              Tambah Meter Baru
+            </div>
+            <div class="card-body">
+              <form method="post" class="need-validation" id="meter_form" action="dashboard.php?page=managemen-tarif">
+                <div class=" mb-3 mt-3">
+                  <label for="wargaMeter" class="form-label">Tipe Tarif</label>
+                  <select class="form-control" name="wargaMeter" id="wargaMeter">
+                    <option value="">Pilih Warga</option>
+                    <?php
+                    $qw = mysqli_query($koneksi, "SELECT username,nama FROM user WHERE level='warga'");
+                    while ($dw = mysqli_fetch_row($qw)) {
+                      $sel = ($namaWarga == $dw[0]) ? 'SELECTED' : '';
+                      echo "<option value=\"$dw[0]\" $sel>$dw[1]</option>";
+                    }
+                    ?>
+                  </select>
+                </div>
+
+                <div class=" mb-3 mt-3">
+                  <label for="meterAwal" class="form-label">Meter Awal (m<sup>3</sup>)</label>
+                  <input type="text" value="<?php echo $meterAwal ?>" class="form-control" id="meterAwal" placeholder="Masukan Meter Awal" name="meterAwal">
+                </div>
+
+                <div class=" mb-3 mt-3">
+                  <label for="meterAkhir" class="form-label">Meter Akhir (m<sup>3</sup>)</label>
+                  <input type="text" value="<?php echo $meterAkhir ?>" class="form-control" id="meterAkhir" placeholder="Masukan Meter Akhir" name="meterAkhir">
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3" name="tombol" value="meter_add">Simpan Data</button>
+                <a href="dashboard.php?page=meter-air"><button type="button" class="btn btn-danger mt-3" id="batalTambahMeter">Batal Tambah</button></a>
+              </form>
+            </div>
+          </div>
+
           <div class="modal" id="myModal">
             <div class="modal-dialog">
               <div class="modal-content">
@@ -696,10 +755,11 @@ $level = $data_user[2];
             </div>
           </div>
 
+          <!-- tabel tarif  -->
           <div class="card mb-4" id="tabelTarif">
             <div class="card-header">
               <i class="fa-solid fa-address-book"></i>
-              Data Baru Cah
+              Tabel Tarif
             </div>
             <div class="card-body">
               <table id="datatablesSimple2">
@@ -738,6 +798,51 @@ $level = $data_user[2];
               </table>
             </div>
           </div>
+
+          <!-- tabel meter  -->
+          <div class="card mb-4" id="tabelMeter">
+            <div class="card-header">
+              <i class="fa-solid fa-industry"></i>
+              Tabel Meter
+            </div>
+            <div class="card-body">
+              <table id="datatablesSimple3">
+                <thead>
+                  <tr>
+                    <th>Nama Warga</th>
+                    <th>Tanggal & Waktu</th>
+                    <th>Meter Awal</th>
+                    <th>Meter Akhir</th>
+                    <th>Pemakaian</th>
+                  </tr>
+                </thead>
+                <a>
+                  <?php
+                  $q = mysqli_query($koneksi, "SELECT * FROM pemakaian ORDER BY tgl ASC, username ASC");
+                  while ($d = mysqli_fetch_row($q)) {
+                    $userMeter = $air->data_user($d[1]);
+                    $namaWarga = $userMeter[0];
+                    $meterAwal = $d[2];
+                    $meterAkhir = $d[3];
+                    $pemakaianMeter = $d[4];
+                    $tanggalMeter = $d[5];
+                    $waktuMeter = $d[6];
+
+                    echo "<tr>
+                    <td>$namaWarga</td>
+                    <td>$tanggalMeter $waktuMeter</td>
+                    <td>$meterAwal</td>
+                    <td>$meterAkhir</td>
+                    <td>$pemakaian</td>
+                  </tr>";
+                  }
+                  ?>
+
+                  </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </main>
       <footer class="py-4 bg-light mt-auto">

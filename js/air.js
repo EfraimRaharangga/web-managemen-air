@@ -5,7 +5,7 @@ $(document).ready(function () {
 
   // menghilangkan semua isi
   $(
-    "#summary, #grafik, #tambahUser,#tabelUser, #tabelTarif, #tambahTarif"
+    "#summary, #grafik, #tambahUser,#tabelUser, #tabelTarif, #tambahTarif, #tabelMeter, #tambahMeter"
   ).hide();
 
   // switch untuk menu sebelah kiri
@@ -62,6 +62,28 @@ $(document).ready(function () {
       break;
     case "pembayaran-warga":
       $("#sumary").show();
+      break;
+    case "meter-air":
+      // munculkan tabel dan tombol tambah
+      $("#tabelMeter").show();
+      $("#tabelMeter .card-body a")
+        .first()
+        .append(
+          '<button type="button" class="btn btn-outline-success float-start me-2" id="new-meter"><i class="fa-solid fa-otter"></i> Meter </button>'
+        );
+
+      // tambahkan tabel
+      const datatablesSimple3 = document.getElementById("datatablesSimple3");
+      if (datatablesSimple3) {
+        new simpleDatatables.DataTable(datatablesSimple3);
+      }
+
+      // menambahkan meter
+      $("#new-meter").click(function (e) {
+        $("#tambahMeter").show();
+        $("#tabelMeter").hide();
+        $("#tambahMeter input").val("");
+      });
       break;
     case "tarif_edit&kode":
     case "managemen-tarif":

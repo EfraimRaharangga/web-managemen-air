@@ -14,6 +14,20 @@ class Air
         $d = mysqli_fetch_row($q);
         return $d;
     }
+
+    function ambilKodeTarifDarIUsername($username)
+    {
+        $q = mysqli_query($this->koneksi(), "SELECT tipe FROM user WHERE username ='$username'");
+        $d = mysqli_fetch_row($q);
+
+        return $this->ambiKodeTarifTipe($d[0]);
+    }
+    function ambiKodeTarifTipe($tipe)
+    {
+        $q = mysqli_query($this->koneksi(), "SELECT kodeTarif,tarif FROM tarif WHERE tipe ='$tipe'");
+        $d = mysqli_fetch_row($q);
+        return $d[0];
+    }
 }
 
 function navLink($title, $get)
