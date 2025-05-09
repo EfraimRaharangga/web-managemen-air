@@ -84,6 +84,12 @@ $(document).ready(function () {
         $("#tabelMeter").hide();
         $("#tambahMeter input").val("");
       });
+
+      // tahan di halaman utama ketika meter terlalu kecil
+      if ($(".dataSama").hasClass(".dataSama")) {
+        $("#tabelMeter").hide();
+        $("#tambahMeter").show();
+      }
       break;
     case "tarif_edit&kode":
     case "managemen-tarif":

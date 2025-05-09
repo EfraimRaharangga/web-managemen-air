@@ -24,7 +24,14 @@ class Air
     }
     function ambiKodeTarifTipe($tipe)
     {
-        $q = mysqli_query($this->koneksi(), "SELECT kodeTarif,tarif FROM tarif WHERE tipe ='$tipe'");
+        $q = mysqli_query($this->koneksi(), "SELECT kodeTarif FROM tarif WHERE tipe ='$tipe' AND status = 1");
+        $d = mysqli_fetch_row($q);
+        return $d[0];
+    }
+
+    function ambilTarif($kodeTarif)
+    {
+        $q = mysqli_query($this->koneksi(), "SELECT tarif FROM tarif WHERE kodeTarif ='$kodeTarif' AND status = 1");
         $d = mysqli_fetch_row($q);
         return $d[0];
     }

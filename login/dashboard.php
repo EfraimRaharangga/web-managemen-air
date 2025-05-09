@@ -360,18 +360,34 @@ $level = $data_user[2];
                 $userWarga = $_POST['wargaMeter'];
                 $meterAwal = $_POST['meterAwal'];
                 $meterAkhir = $_POST['meterAkhir'];
-                $pemakaian - $meterAkhir - $meterAwal;
+                $pemakaian = $meterAkhir - $meterAwal;
+
 
                 // cek apakah nilai meter akhir lebih besar atau tidak 
                 if ($pemakaian < 0) {
-                  echo '<div class="alert alert-danger alert-dismissible">
-                      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                      <strong>Data Masukan Salah!</strong> Mohon maaf data meter awal lebih besar daripada meter akhir.
-                      </div>';
+                  echo '<div class="alert alert-danger alert-dismissible dataSama">
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  <strong>Data Masukan Salah!</strong> Mohon maaf data meter awal lebih besar daripada meter akhir.
+                  </div>';
                 } else {
+
                   $kodeTarif = $air->ambilKodeTarifDarIUsername($userWarga);
-                  // $tagihan = ;
-                  mysqli_query($koneksi, "INSERT INTO pemakaian (username,meterAwal,meterAkhir,pemakaian,tgl,waktu,kodeTarif,tagihan,status) VALUES ('$userWarga','$meterAwal','$meterAkhir','$pemakaian',CURRENT_DATE(),CURRENT_TIME(),'$kodeTarif',)");
+                  $tarif = $air->ambilTarif($kodeTarif);
+                  $tagihan = $tarif * $pemakaian;
+                  mysqli_query($koneksi, "INSERT INTO pemakaian (username,meterAwal,meterAkhir,pemakaian,tgl,waktu,kodeTarif,tagihan,status) VALUES ('$userWarga','$meterAwal','$meterAkhir','$pemakaian',CURRENT_DATE(),CURRENT_TIME(),'$kodeTarif','$tagihan','Belum Lunas')");
+
+                  // cek apakah data berhasil terupload 
+                  if (mysqli_affected_rows($koneksi) > 0) {
+                    echo "<div class=\"alert alert-success alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Berhasil Masuk!</strong> Meter Air dengan berhasil ditambahkan.
+                    </div>";
+                  } else {
+                    echo '<div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <strong>Data Gagal Masuk!</strong> Mohon maaf data yang anda gagal ditambahkan.
+                    </div>';
+                  }
                 }
                 break;
 
@@ -639,7 +655,7 @@ $level = $data_user[2];
               Tambah Meter Baru
             </div>
             <div class="card-body">
-              <form method="post" class="need-validation" id="meter_form" action="dashboard.php?page=managemen-tarif">
+              <form method="post" class="need-validation" id="meter_form" action="dashboard.php?page=meter-air">
                 <div class=" mb-3 mt-3">
                   <label for="wargaMeter" class="form-label">Tipe Tarif</label>
                   <select class="form-control" name="wargaMeter" id="wargaMeter">
@@ -825,7 +841,7 @@ $level = $data_user[2];
                     $meterAwal = $d[2];
                     $meterAkhir = $d[3];
                     $pemakaianMeter = $d[4];
-                    $tanggalMeter = $d[5];
+                    $tanggalMeter = date("d-m-Y", strtotime($d[5]));
                     $waktuMeter = $d[6];
 
                     echo "<tr>
@@ -833,7 +849,7 @@ $level = $data_user[2];
                     <td>$tanggalMeter $waktuMeter</td>
                     <td>$meterAwal</td>
                     <td>$meterAkhir</td>
-                    <td>$pemakaian</td>
+                    <td>$pemakaianMeter</td>
                   </tr>";
                   }
                   ?>
