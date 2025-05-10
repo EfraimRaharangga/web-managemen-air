@@ -493,6 +493,24 @@ $level = $data_user[2];
                     </div>";
                 }
                 break;
+              case 'meter_hapus':
+                // hapus user
+                $kode = $_POST['meter'];
+                mysqli_query($koneksi, "DELETE FROM pemakaian WHERE no='$kode'");
+
+                // cek apakah user berhasil dihapus 
+                if (mysqli_affected_rows($koneksi) > 0) {
+                  echo "<div class=\"alert alert-success alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Berhasil Dihapus!</strong> Data meter anda berhasil dihapus.
+                    </div>";
+                } else {
+                  echo "<div class=\"alert alert-warning alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Gagal Dihapus</strong> Data meter anda gagal dihapus.
+                    </div>";
+                }
+                break;
               default:
                 break;
             }
@@ -655,7 +673,7 @@ $level = $data_user[2];
               Tambah Meter Baru
             </div>
             <div class="card-body">
-              <form method="post" class="need-validation" id="meter_form" action="dashboard.php?page=meter-air">
+              <form method="post" class="need-validation" id="meter_form" action="dashboard.php?page=catat-meter">
                 <div class=" mb-3 mt-3">
                   <label for="wargaMeter" class="form-label">Tipe Tarif</label>
                   <select class="form-control" name="wargaMeter" id="wargaMeter">
@@ -681,7 +699,7 @@ $level = $data_user[2];
                 </div>
 
                 <button type="submit" class="btn btn-primary mt-3" name="tombol" value="meter_add">Simpan Data</button>
-                <a href="dashboard.php?page=meter-air"><button type="button" class="btn btn-danger mt-3" id="batalTambahMeter">Batal Tambah</button></a>
+                <a href="dashboard.php?page=catat-meter"><button type="button" class="btn btn-danger mt-3" id="batalTambahMeter">Batal Tambah</button></a>
               </form>
             </div>
           </div>
@@ -830,27 +848,42 @@ $level = $data_user[2];
                     <th>Meter Awal</th>
                     <th>Meter Akhir</th>
                     <th>Pemakaian</th>
+                    <th>Modifikasi</th>
                   </tr>
                 </thead>
                 <a>
                   <?php
                   $q = mysqli_query($koneksi, "SELECT * FROM pemakaian ORDER BY tgl ASC, username ASC");
                   while ($d = mysqli_fetch_row($q)) {
+                    $nomorMeter = $d[0];
                     $userMeter = $air->data_user($d[1]);
                     $namaWarga = $userMeter[0];
                     $meterAwal = $d[2];
                     $meterAkhir = $d[3];
                     $pemakaianMeter = $d[4];
-                    $tanggalMeter = date("d-m-Y", strtotime($d[5]));
+                    $tanggalMeter = formatTanggalIndo($d[5]);
+                    $tanggalSekarang = formatTanggalIndo(date('Y-m-d'));
                     $waktuMeter = $d[6];
+                    $diff = date_diff(date_create($d[5]), date_create())->days;
+                    $selisih = ($diff == 0) ? '(Hari ini)' : "$diff hari";
 
                     echo "<tr>
-                    <td>$namaWarga</td>
-                    <td>$tanggalMeter $waktuMeter</td>
+                    <td>$namaWarga --> $selisih</td>
+                    <td>$tanggalMeter $waktuMeter | $tanggalSekarang $selisih </td>
                     <td>$meterAwal</td>
                     <td>$meterAkhir</td>
-                    <td>$pemakaianMeter</td>
-                  </tr>";
+                    <td>$pemakaianMeter</td>";
+
+                    // menentukan tombol ada atau tidak 
+                    if ($selisih > 30) {
+                      echo "<td></td>";
+                    } else {
+                      echo "<td>
+                      <a href=\"dashboard.php?page=meter_edit&meter=$nomorMeter\"><button type=\"button\" class=\"btn btn-outline-success mb-2\">Edit</button></a>
+                      <button type=\"button\" class=\"btn btn-outline-danger tombolHapusMeter mb-2\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" no-meter='$nomorMeter'>Hapus</button>
+                      </td>
+                    </tr>";
+                    }
                   }
                   ?>
 

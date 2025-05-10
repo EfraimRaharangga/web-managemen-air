@@ -63,7 +63,8 @@ $(document).ready(function () {
     case "pembayaran-warga":
       $("#sumary").show();
       break;
-    case "meter-air":
+    case "meter_edit&meter":
+    case "catat-meter":
       // munculkan tabel dan tombol tambah
       $("#tabelMeter").show();
       $("#tabelMeter .card-body a")
@@ -77,6 +78,34 @@ $(document).ready(function () {
       if (datatablesSimple3) {
         new simpleDatatables.DataTable(datatablesSimple3);
       }
+
+      // ketika page berubah jadi meter_edit tabel juga berubah
+      if (get[1] == "meter_edit&meter") {
+        $("#tambahMeter").show();
+        $("#tabelMeter").hide();
+        $("#tambahUser .card-header").html(
+          '<i class="fa-solid fa-water"></i> Edit Meter'
+        );
+        $("#user_form button").val("meter_edit");
+        $("#user_form input[name='username']").attr("disabled", true);
+        $("#user_form").append(
+          `<input type="hidden" name="username" value=${get[2]} ></input>`
+        );
+      }
+
+      // merubah value tombol hapus
+      $(".modal-footer form button").click(function () {
+        $(this).attr("value", "meter_hapus");
+      });
+
+      // modal untuk konfirmasi hapus
+      $(".tombolHapusMeter").click(function (e) {
+        let nomorMeter = $(this).attr("no-meter");
+        $("#myModal .modal-body").text(`Yakin menghapus Data ini ?`);
+        $(".modal-footer form").append(
+          `<input type="hidden" name="meter" value="${nomorMeter}"> `
+        );
+      });
 
       // menambahkan meter
       $("#new-meter").click(function (e) {
@@ -140,7 +169,6 @@ $(document).ready(function () {
 
       // modal untuk konfirmasi hapus
       $(".tombolHapusTarif").click(function (e) {
-        console.log("1");
         let kodeTarif = $(this).attr("data-tarif");
         $("#myModal .modal-body").text(
           `Yakin menghapus Data dengan kode tarif ${kodeTarif}`

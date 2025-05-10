@@ -54,3 +54,25 @@ function navLink($title, $get)
                 $title
               </a>";
 }
+
+function formatTanggalIndo($tanggal)
+{
+    $bulan = [
+        1 => 'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
+    ];
+    $tgl = date('j', strtotime($tanggal));
+    $bln = date('n', strtotime($tanggal));
+    $thn = date('Y', strtotime($tanggal));
+    return $tgl . ' ' . $bulan[$bln] . ' ' . $thn;
+}
