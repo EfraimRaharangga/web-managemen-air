@@ -15,7 +15,14 @@ class Air
         return $d;
     }
 
-    function ambilKodeTarifDarIUsername($username)
+    function ambilTipedariKodeTarif($kodeTarif)
+    {
+        $q = mysqli_query($this->koneksi(), "SELECT tipe FROM tarif WHERE kodeTarif ='$kodeTarif' AND status = 1");
+        $d = mysqli_fetch_row($q);
+        return $d[0];
+    }
+
+    function ambilKodeTarifDariUsername($username)
     {
         $q = mysqli_query($this->koneksi(), "SELECT tipe FROM user WHERE username ='$username'");
         $d = mysqli_fetch_row($q);
@@ -32,6 +39,13 @@ class Air
     function ambilTarif($kodeTarif)
     {
         $q = mysqli_query($this->koneksi(), "SELECT tarif FROM tarif WHERE kodeTarif ='$kodeTarif' AND status = 1");
+        $d = mysqli_fetch_row($q);
+        return $d[0];
+    }
+
+    function nomorPemakainkeUsername($nomorMeter)
+    {
+        $q = mysqli_query($this->koneksi(), "SELECT username FROM pemakaian WHERE no='$nomorMeter'");
         $d = mysqli_fetch_row($q);
         return $d[0];
     }

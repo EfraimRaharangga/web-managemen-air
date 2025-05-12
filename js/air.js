@@ -60,9 +60,8 @@ $(document).ready(function () {
     case "ubah-datameter-warga":
       $("#grafik").show();
       break;
-    case "pembayaran-warga":
-      $("#sumary").show();
-      break;
+
+    case "pemakaian-warga":
     case "meter_edit&meter":
     case "catat-meter":
       // munculkan tabel dan tombol tambah
@@ -83,13 +82,13 @@ $(document).ready(function () {
       if (get[1] == "meter_edit&meter") {
         $("#tambahMeter").show();
         $("#tabelMeter").hide();
-        $("#tambahUser .card-header").html(
+        $("#tambahMeter .card-header").html(
           '<i class="fa-solid fa-water"></i> Edit Meter'
         );
-        $("#user_form button").val("meter_edit");
-        $("#user_form input[name='username']").attr("disabled", true);
-        $("#user_form").append(
-          `<input type="hidden" name="username" value=${get[2]} ></input>`
+        $("#meter_form button").val("meter_edit");
+        $("#wargaMeter").attr("disabled", true);
+        $("#meter_form").append(
+          `<input type="hidden" name="wargaMeter" value=${get[2]} ></input>`
         );
       }
 

@@ -371,7 +371,7 @@ $level = $data_user[2];
                   </div>';
                 } else {
 
-                  $kodeTarif = $air->ambilKodeTarifDarIUsername($userWarga);
+                  $kodeTarif = $air->ambilKodeTarifDariUsername($userWarga);
                   $tarif = $air->ambilTarif($kodeTarif);
                   $tagihan = $tarif * $pemakaian;
                   mysqli_query($koneksi, "INSERT INTO pemakaian (username,meterAwal,meterAkhir,pemakaian,tgl,waktu,kodeTarif,tagihan,status) VALUES ('$userWarga','$meterAwal','$meterAkhir','$pemakaian',CURRENT_DATE(),CURRENT_TIME(),'$kodeTarif','$tagihan','Belum Lunas')");
@@ -432,7 +432,7 @@ $level = $data_user[2];
                 }
                 break;
 
-              // tombol diedit 
+              // tarif diedit 
               case 'tarif_edit':
                 $kodeTarif = $_POST['kodeTarif'];
                 $tarif = $_POST['tarif'];
@@ -451,6 +451,35 @@ $level = $data_user[2];
                   echo '<div class="alert alert-warning alert-dismissible">
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     <strong>Data Tidak Dirubah</strong> Mohon maaf anda tidak mengedit user.
+                    </div>';
+                }
+                break;
+
+              // meter diedit 
+              case 'meter_edit':
+                // ambil data 
+                $nomorMeter = $_POST['wargaMeter'];
+                $meterAwal = $_POST['meterAwal'];
+                $meterAkhir = $_POST['meterAkhir'];
+                $userWarga = $air->nomorPemakainkeUsername($nomorMeter);
+                $kodeTarif = $air->ambilKodeTarifDarIUsername($userWarga);
+                $tarif = $air->ambilTarif($kodeTarif);
+                $pemakaian = $meterAkhir - $meterAwal;
+                $tagihan = $tarif * $pemakaian;
+
+                // update data 
+                mysqli_query($koneksi, "UPDATE pemakaian SET meterAwal='$meterAwal',meterAkhir='$meterAkhir',pemakaian='$pemakaian',tgl=CURRENT_DATE(),waktu=CURRENT_TIME() WHERE no='$nomorMeter'");
+
+                // cek apakah data berhasil terupload 
+                if (mysqli_affected_rows($koneksi) > 0) {
+                  echo "<div class=\"alert alert-success alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Berhasil Masuk!</strong> Meter Air dengan berhasil ditambahkan.
+                    </div>";
+                } else {
+                  echo '<div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <strong>Data Gagal Masuk!</strong> Mohon maaf data yang anda gagal ditambahkan.
                     </div>';
                 }
                 break;
@@ -543,6 +572,14 @@ $level = $data_user[2];
                 $tipeTarif = $d[1];
                 $tarif = $d[2];
                 $statusTarif = $d[3];
+                break;
+              case 'meter_edit':
+                $nomorMeter = $_GET['meter'];
+                $q = mysqli_query($koneksi, "SELECT username,meterAwal,meterAkhir FROM pemakaian WHERE no='$nomorMeter'");
+                $d = mysqli_fetch_row($q);
+                $namaWarga = $d[0];
+                $meterAwal = $d[1];
+                $meterAkhir = $d[2];
                 break;
               case 'managemen-tarif':
                 $statusTarif = '';
@@ -844,6 +881,7 @@ $level = $data_user[2];
                 <thead>
                   <tr>
                     <th>Nama Warga</th>
+                    <th>Tipe</th>
                     <th>Tanggal & Waktu</th>
                     <th>Meter Awal</th>
                     <th>Meter Akhir</th>
@@ -856,6 +894,7 @@ $level = $data_user[2];
                   $q = mysqli_query($koneksi, "SELECT * FROM pemakaian ORDER BY tgl ASC, username ASC");
                   while ($d = mysqli_fetch_row($q)) {
                     $nomorMeter = $d[0];
+                    $tipeMeter = $air->ambilTipedariKodeTarif($d[7]);
                     $userMeter = $air->data_user($d[1]);
                     $namaWarga = $userMeter[0];
                     $meterAwal = $d[2];
@@ -869,20 +908,31 @@ $level = $data_user[2];
 
                     echo "<tr>
                     <td>$namaWarga --> $selisih</td>
+                    <td>$tipeMeter</td>
                     <td>$tanggalMeter $waktuMeter | $tanggalSekarang $selisih </td>
                     <td>$meterAwal</td>
                     <td>$meterAkhir</td>
                     <td>$pemakaianMeter</td>";
 
                     // menentukan tombol ada atau tidak 
-                    if ($selisih > 30) {
-                      echo "<td></td>";
-                    } else {
-                      echo "<td>
+                    switch ($data_user[2]) {
+                      case 'petugas':
+                        if ($selisih > 30) {
+                          echo "<td></td>";
+                        } else {
+                          echo "<td>
                       <a href=\"dashboard.php?page=meter_edit&meter=$nomorMeter\"><button type=\"button\" class=\"btn btn-outline-success mb-2\">Edit</button></a>
                       <button type=\"button\" class=\"btn btn-outline-danger tombolHapusMeter mb-2\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" no-meter='$nomorMeter'>Hapus</button>
                       </td>
-                    </tr>";
+                      </tr>";
+                        }
+                        break;
+                      default:
+                        echo "<td>
+                      <a href=\"dashboard.php?page=meter_edit&meter=$nomorMeter\"><button type=\"button\" class=\"btn btn-outline-success mb-2\">Edit</button></a>
+                      <button type=\"button\" class=\"btn btn-outline-danger tombolHapusMeter mb-2\" data-bs-toggle=\"modal\" data-bs-target=\"#myModal\" no-meter='$nomorMeter'>Hapus</button>
+                      </td>
+                      </tr>";;
                     }
                   }
                   ?>
