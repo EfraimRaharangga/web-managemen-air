@@ -467,20 +467,29 @@ $level = $data_user[2];
                 $pemakaian = $meterAkhir - $meterAwal;
                 $tagihan = $tarif * $pemakaian;
 
-                // update data 
-                mysqli_query($koneksi, "UPDATE pemakaian SET meterAwal='$meterAwal',meterAkhir='$meterAkhir',pemakaian='$pemakaian',tgl=CURRENT_DATE(),waktu=CURRENT_TIME() WHERE no='$nomorMeter'");
 
-                // cek apakah data berhasil terupload 
-                if (mysqli_affected_rows($koneksi) > 0) {
-                  echo "<div class=\"alert alert-success alert-dismissible\">
+                // cek apakah nilai meter akhir lebih besar atau tidak 
+                if ($pemakaian < 0) {
+                  echo '<div class="alert alert-danger alert-dismissible dataSama">
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                  <strong>Data Masukan Salah!</strong> Mohon maaf data meter awal lebih besar daripada meter akhir.
+                  </div>';
+                } else {
+                  // update data 
+                  mysqli_query($koneksi, "UPDATE pemakaian SET meterAwal='$meterAwal',meterAkhir='$meterAkhir',pemakaian='$pemakaian',tgl=CURRENT_DATE(),waktu=CURRENT_TIME() WHERE no='$nomorMeter'");
+
+                  // cek apakah data berhasil terupload 
+                  if (mysqli_affected_rows($koneksi) > 0) {
+                    echo "<div class=\"alert alert-success alert-dismissible\">
                     <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
                     <strong>Data Berhasil Masuk!</strong> Meter Air dengan berhasil ditambahkan.
                     </div>";
-                } else {
-                  echo '<div class="alert alert-danger alert-dismissible">
+                  } else {
+                    echo '<div class="alert alert-danger alert-dismissible">
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     <strong>Data Gagal Masuk!</strong> Mohon maaf data yang anda gagal ditambahkan.
                     </div>';
+                  }
                 }
                 break;
 
