@@ -103,26 +103,18 @@ $level = $data_user[2];
             switch ($level) {
               case 'admin':
                 print navLink("Management User", "managemen-user"); //done
-                print navLink("Ubah Datameter Warga", "ubah-datameter-warga"); //done
-                print navLink("Pembayaran Warga", "pembayaran-warga"); //done
                 print navLink("Lihat Pemakaian Warga", "lihat-pemakaian-warga"); //done
+                print navLink("Managemen Tarif", "managemen-tarif"); //done
                 break;
               case 'bendahara':
-                print navLink("Ubah Datameter Warga", "ubah-datameter-warga"); //done
-                print navLink("Transaksi Pembayaran", "transaksi-pembayaran-warga"); //done
                 print navLink("Managemen Tarif", "managemen-tarif"); //done
-                print navLink("Pembayaran Warga", "pembayaran-warga"); //done
                 print navLink("Lihat Pemakaian Warga", "pemakaian-warga"); //done
                 break;
               case 'warga':
                 print navLink("Lihat Pemakaian & Tagihan", "pemakaian-anda"); //done
-                print navLink("Lihat Tagihan Anda", "tagihan-anda"); //done
-                print navLink("Bayar Tagihan Anda", "bayar-tagihan-anda"); //done
                 break;
               case 'petugas':
-                print navLink("Lihat Pemakaian Warga", "lihat-pemakaian-warga"); //done
                 print navLink("Catat Meteran", "catat-meter");
-                print navLink("Ubah Datameter Warga Sebulan", "ubah-datameter-bulan");
                 break;
             }
             ?>
