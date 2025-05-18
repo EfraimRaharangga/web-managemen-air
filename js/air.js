@@ -5,7 +5,7 @@ $(document).ready(function () {
 
   // menghilangkan semua isi
   $(
-    "#summary, #grafik, #tambahUser,#tabelUser, #tabelTarif, #tambahTarif, #tabelMeter, #tambahMeter"
+    "#summary, #grafik, #tambahUser,#tabelUser, #tabelTarif, #tambahTarif, #tabelMeter, #tambahMeter,#tabelWarga,#tambahWarga"
   ).hide();
 
   // switch untuk menu sebelah kiri
@@ -61,16 +61,19 @@ $(document).ready(function () {
       $("#grafik").show();
       break;
 
+    case "lihat-pemakaian-warga":
     case "pemakaian-warga":
     case "meter_edit&meter":
     case "catat-meter":
       // munculkan tabel dan tombol tambah
       $("#tabelMeter").show();
-      $("#tabelMeter .card-body a")
-        .first()
-        .append(
-          '<button type="button" class="btn btn-outline-success float-start me-2" id="new-meter"><i class="fa-solid fa-otter"></i> Meter </button>'
-        );
+      if (get[1] !== "pemakaian-warga") {
+        $("#tabelMeter .card-body a")
+          .first()
+          .append(
+            '<button type="button" class="btn btn-outline-success float-start me-2" id="new-meter"><i class="fa-solid fa-otter"></i> Meter </button>'
+          );
+      }
 
       // tambahkan tabel
       const datatablesSimple3 = document.getElementById("datatablesSimple3");
@@ -110,7 +113,7 @@ $(document).ready(function () {
       $("#new-meter").click(function (e) {
         $("#tambahMeter").show();
         $("#tabelMeter").hide();
-        $("#tambahMeter input").val("");
+        $('#tambahMeter input[type="text"]').val("");
       });
 
       // tahan di halaman utama ketika meter terlalu kecil
@@ -177,6 +180,17 @@ $(document).ready(function () {
         );
       });
 
+      break;
+    case "pemakaian-anda":
+      // munculkan tabel dan tombol tambah
+      $("#tabelWarga").show();
+
+      // tambahkan tabel
+      const datatablesSimple4 = document.getElementById("datatablesSimple4");
+      if (datatablesSimple4) {
+        new simpleDatatables.DataTable(datatablesSimple4);
+      }
+      $(".datatable-empty").html("Anda belum memiliki tagihan apapun");
       break;
     default:
       $("#summary, #grafik").show();

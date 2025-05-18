@@ -4,7 +4,7 @@ class Air
 {
     function koneksi()
     {
-        $koneksi = mysqli_connect("localhost", "userAir", "#Us3r_A1r_2025#", "air");
+        $koneksi = mysqli_connect("localhost", "root", "", "air");
         return $koneksi;
     }
 

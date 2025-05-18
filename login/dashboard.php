@@ -105,7 +105,7 @@ $level = $data_user[2];
                 print navLink("Management User", "managemen-user"); //done
                 print navLink("Ubah Datameter Warga", "ubah-datameter-warga"); //done
                 print navLink("Pembayaran Warga", "pembayaran-warga"); //done
-                print navLink("Lihat Pemakaian Warga", "pemakaian-warga"); //done
+                print navLink("Lihat Pemakaian Warga", "lihat-pemakaian-warga"); //done
                 break;
               case 'bendahara':
                 print navLink("Ubah Datameter Warga", "ubah-datameter-warga"); //done
@@ -115,12 +115,12 @@ $level = $data_user[2];
                 print navLink("Lihat Pemakaian Warga", "pemakaian-warga"); //done
                 break;
               case 'warga':
-                print navLink("Lihat Pemakaian Anda", "pemakaian-anda"); //done
+                print navLink("Lihat Pemakaian & Tagihan", "pemakaian-anda"); //done
                 print navLink("Lihat Tagihan Anda", "tagihan-anda"); //done
                 print navLink("Bayar Tagihan Anda", "bayar-tagihan-anda"); //done
                 break;
               case 'petugas':
-                print navLink("Lihat Pemakaian Warga", "pemakaian-warga"); //done
+                print navLink("Lihat Pemakaian Warga", "lihat-pemakaian-warga"); //done
                 print navLink("Catat Meteran", "catat-meter");
                 print navLink("Ubah Datameter Warga Sebulan", "ubah-datameter-bulan");
                 break;
@@ -161,8 +161,8 @@ $level = $data_user[2];
                 $li = "Ubah Datameter air Warga";
                 break;
               case 'pemakaian-anda':
-                $h1 = "Lihat Pemakaian Anda";
-                $li = "Melihat Pemakaian Air Anda";
+                $h1 = "Lihat Pemakaian & Tagihan Anda";
+                $li = "Melihat Pemakaian & Tagihan Air Anda";
                 break;
               case 'tagihan-anda':
                 $h1 = "Lihat Tagihan Anda";
@@ -374,7 +374,11 @@ $level = $data_user[2];
                   $kodeTarif = $air->ambilKodeTarifDariUsername($userWarga);
                   $tarif = $air->ambilTarif($kodeTarif);
                   $tagihan = $tarif * $pemakaian;
-                  mysqli_query($koneksi, "INSERT INTO pemakaian (username,meterAwal,meterAkhir,pemakaian,tgl,waktu,kodeTarif,tagihan,status) VALUES ('$userWarga','$meterAwal','$meterAkhir','$pemakaian',CURRENT_DATE(),CURRENT_TIME(),'$kodeTarif','$tagihan','Belum Lunas')");
+
+                  if ($data_user[2] == 'admin') {
+                    $statusMeter = $_POST['status'];
+                    mysqli_query($koneksi, "INSERT INTO pemakaian (username,meterAwal,meterAkhir,pemakaian,tgl,waktu,kodeTarif,tagihan,status) VALUES ('$userWarga','$meterAwal','$meterAkhir','$pemakaian',CURRENT_DATE(),CURRENT_TIME(),'$kodeTarif','$tagihan','$statusMeter')");
+                  } else mysqli_query($koneksi, "INSERT INTO pemakaian (username,meterAwal,meterAkhir,pemakaian,tgl,waktu,kodeTarif,tagihan,status) VALUES ('$userWarga','$meterAwal','$meterAkhir','$pemakaian',CURRENT_DATE(),CURRENT_TIME(),'$kodeTarif','$tagihan','0')");
 
                   // cek apakah data berhasil terupload 
                   if (mysqli_affected_rows($koneksi) > 0) {
@@ -461,6 +465,7 @@ $level = $data_user[2];
                 $nomorMeter = $_POST['wargaMeter'];
                 $meterAwal = $_POST['meterAwal'];
                 $meterAkhir = $_POST['meterAkhir'];
+                $statusMeter = isset($_POST['status']) ? $_POST['status'] : 'null';
                 $userWarga = $air->nomorPemakainkeUsername($nomorMeter);
                 $kodeTarif = $air->ambilKodeTarifDarIUsername($userWarga);
                 $tarif = $air->ambilTarif($kodeTarif);
@@ -475,20 +480,42 @@ $level = $data_user[2];
                   <strong>Data Masukan Salah!</strong> Mohon maaf data meter awal lebih besar daripada meter akhir.
                   </div>';
                 } else {
-                  // update data 
-                  mysqli_query($koneksi, "UPDATE pemakaian SET meterAwal='$meterAwal',meterAkhir='$meterAkhir',pemakaian='$pemakaian',tgl=CURRENT_DATE(),waktu=CURRENT_TIME() WHERE no='$nomorMeter'");
 
-                  // cek apakah data berhasil terupload 
-                  if (mysqli_affected_rows($koneksi) > 0) {
-                    echo "<div class=\"alert alert-success alert-dismissible\">
+                  // cek apakah bendahara atau admin
+                  if ($data_user[2] !== 'petugas') {
+
+                    // update data 
+                    mysqli_query($koneksi, "UPDATE pemakaian SET meterAwal='$meterAwal',meterAkhir='$meterAkhir',pemakaian='$pemakaian',tagihan=$tagihan,status='$statusMeter' WHERE no='$nomorMeter'");
+
+                    // cek apakah data berhasil terupload 
+                    if (mysqli_affected_rows($koneksi) > 0) {
+                      echo "<div class=\"alert alert-success alert-dismissible\">
                     <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
                     <strong>Data Berhasil Masuk!</strong> Meter Air dengan berhasil ditambahkan.
                     </div>";
-                  } else {
-                    echo '<div class="alert alert-danger alert-dismissible">
+                    } else {
+                      echo '<div class="alert alert-danger alert-dismissible">
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     <strong>Data Gagal Masuk!</strong> Mohon maaf data yang anda gagal ditambahkan.
                     </div>';
+                    }
+                  } else {
+
+                    // update data 
+                    mysqli_query($koneksi, "UPDATE pemakaian SET meterAwal='$meterAwal',meterAkhir='$meterAkhir',pemakaian='$pemakaian',tgl=CURRENT_DATE(),waktu=CURRENT_TIME(),tagihan=$tagihan WHERE no='$nomorMeter'");
+
+                    // cek apakah data berhasil terupload 
+                    if (mysqli_affected_rows($koneksi) > 0) {
+                      echo "<div class=\"alert alert-success alert-dismissible\">
+                    <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"alert\"></button>
+                    <strong>Data Berhasil Masuk!</strong> Meter Air dengan berhasil ditambahkan.
+                    </div>";
+                    } else {
+                      echo '<div class="alert alert-danger alert-dismissible">
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <strong>Data Gagal Masuk!</strong> Mohon maaf data yang anda gagal ditambahkan.
+                    </div>';
+                    }
                   }
                 }
                 break;
@@ -584,11 +611,12 @@ $level = $data_user[2];
                 break;
               case 'meter_edit':
                 $nomorMeter = $_GET['meter'];
-                $q = mysqli_query($koneksi, "SELECT username,meterAwal,meterAkhir FROM pemakaian WHERE no='$nomorMeter'");
+                $q = mysqli_query($koneksi, "SELECT username,meterAwal,meterAkhir,status FROM pemakaian WHERE no='$nomorMeter'");
                 $d = mysqli_fetch_row($q);
                 $namaWarga = $d[0];
                 $meterAwal = $d[1];
                 $meterAkhir = $d[2];
+                $statusMeter = $d[3];
                 break;
               case 'managemen-tarif':
                 $statusTarif = '';
@@ -743,6 +771,24 @@ $level = $data_user[2];
                   <label for="meterAkhir" class="form-label">Meter Akhir (m<sup>3</sup>)</label>
                   <input type="text" value="<?php echo $meterAkhir ?>" class="form-control" id="meterAkhir" placeholder="Masukan Meter Akhir" name="meterAkhir">
                 </div>
+                <?php
+
+                // penambahan lunas jika user bendahara atau admin 
+                if ($data_user[2] !== 'petugas') {
+                  $meterArray = ['1', '0',];
+                  foreach ($meterArray as $mt) {
+
+                    if (isset($statusMeter)) $sel = ($mt == $statusMeter) ? "checked" : "";
+                    else $sel = '';
+
+                    $status = ($mt == '1') ? 'Lunas' : 'Belum Lunas';
+                    echo "<div class=\"form-check\">
+                        <input type=\"radio\" class=\"form-check-input\" id=\"radioMeter$mt\" name=\"status\" value=\"$mt\" $sel>$status
+                        <label class=\"form-check-label\" for=\"radioMeter$mt\"></label>
+                        </div>";
+                  }
+                }
+                ?>
 
                 <button type="submit" class="btn btn-primary mt-3" name="tombol" value="meter_add">Simpan Data</button>
                 <a href="dashboard.php?page=catat-meter"><button type="button" class="btn btn-danger mt-3" id="batalTambahMeter">Batal Tambah</button></a>
@@ -895,6 +941,13 @@ $level = $data_user[2];
                     <th>Meter Awal</th>
                     <th>Meter Akhir</th>
                     <th>Pemakaian</th>
+                    <?php
+                    // menambahkan tagihan dan modifikasi jika bendahara 
+                    if ($data_user[2] !== 'petugas') {
+                      echo "<th>Tagihan</th>
+                            <th>Status</th>";
+                    }
+                    ?>
                     <th>Modifikasi</th>
                   </tr>
                 </thead>
@@ -912,8 +965,11 @@ $level = $data_user[2];
                     $tanggalMeter = formatTanggalIndo($d[5]);
                     $tanggalSekarang = formatTanggalIndo(date('Y-m-d'));
                     $waktuMeter = $d[6];
+                    $tagihanMeter = $d[8];
+                    $statusMeter = $d[9] == 0 ? 'Belum Lunas' : 'Lunas';
                     $diff = date_diff(date_create($d[5]), date_create())->days;
                     $selisih = ($diff == 0) ? '(Hari ini)' : "$diff hari";
+                    $rupiah = "Rp " . number_format($tagihanMeter, 0, ',', '.');
 
                     echo "<tr>
                     <td>$namaWarga --> $selisih</td>
@@ -923,10 +979,16 @@ $level = $data_user[2];
                     <td>$meterAkhir</td>
                     <td>$pemakaianMeter</td>";
 
-                    // menentukan tombol ada atau tidak 
+                    // menambahkan pemakaian dan status pada bendahara 
+                    if ($data_user[2] !== 'petugas') {
+                      echo "<td>$rupiah</td>";
+                      echo  $d[9] == '0' ? "<td><span class='text-danger'>$statusMeter</span></td>" : "<td><span class='text-success'>$statusMeter</span></td>";
+                    }
+
+                    // menentukan tombol modifikasi ada atau tidak 
                     switch ($data_user[2]) {
                       case 'petugas':
-                        if ($selisih > 30) {
+                        if ($diff > 30) {
                           echo "<td></td>";
                         } else {
                           echo "<td>
@@ -943,6 +1005,56 @@ $level = $data_user[2];
                       </td>
                       </tr>";;
                     }
+                  }
+                  ?>
+
+                  </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- tabel warga -->
+          <div class="card mb-4" id="tabelWarga">
+            <div class="card-header">
+              <i class="fa-solid fa-industry"></i>
+              Tabel Meter
+            </div>
+            <div class="card-body">
+              <table id="datatablesSimple4">
+                <thead>
+                  <tr>
+                    <th>Waktu Pencatatan Meter</th>
+                    <th>Kode Tarif</th>
+                    <th>Meter Awal (m<sup>3</sup>)</th>
+                    <th>Meter Akhir (m<sup>3</sup>)</th>
+                    <th>Pemakaian</th>
+                    <th>Tagihan</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <a>
+                  <?php
+                  $userWarga = $_SESSION['user'];
+                  $q = mysqli_query($koneksi, "SELECT * FROM pemakaian WHERE username = '$userWarga' ORDER BY tgl DESC;");
+                  while ($d = mysqli_fetch_row($q)) {
+                    $tanggalMeter = formatTanggalIndo($d[5]);
+                    $waktuMeter = $d[6];
+                    $kodeTarif = $d[7];
+                    $meterAwal = $d[2];
+                    $meterAkhir = $d[3];
+                    $pemakaianMeter = $d[4];
+                    $tagihanMeter = $d[8];
+                    $rupiah = "Rp " . number_format($tagihanMeter, 0, ',', '.') . ",-";
+                    $statusMeter = $d[9] == 0 ? 'Belum Lunas' : 'Lunas';
+
+                    echo "<tr>
+                    <td>$tanggalMeter $waktuMeter </td>
+                    <td>$kodeTarif</td>
+                    <td>$meterAwal</td>
+                    <td>$meterAkhir</td>
+                    <td>$pemakaianMeter</td>
+                    <td>$tagihanMeter</td>";
+                    echo  $d[9] == '0' ? "<td><span class='text-danger'>$statusMeter</span></td>" : "<td><span class='text-success'>$statusMeter</span></td>";
                   }
                   ?>
 
