@@ -10,7 +10,7 @@ class Air
 
     function data_user($sesi_user)
     {
-        $q = mysqli_query($this->koneksi(), "SELECT nama,kota,level FROM user WHERE username ='$sesi_user'");
+        $q = mysqli_query($this->koneksi(), "SELECT nama,kota,level,username FROM user WHERE username ='$sesi_user'");
         $d = mysqli_fetch_row($q);
         return $d;
     }

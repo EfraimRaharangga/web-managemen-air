@@ -3,9 +3,14 @@ $(document).ready(function () {
   let url = window.location.href;
   let get = url.split("=");
 
+  // fungsi menambahkan titik setiap 3 angka
+  function formatAngka(n) {
+    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  }
+
   // menghilangkan semua isi
   $(
-    "#summary, #grafik, #tambahUser,#tabelUser, #tabelTarif, #tambahTarif, #tabelMeter, #tambahMeter,#tabelWarga,#tambahWarga"
+    "#summary, #pilihWaktu, #grafik, #tambahUser,#tabelUser, #tabelTarif, #tambahTarif, #tabelMeter, #tambahMeter,#tabelWarga,#tambahWarga"
   ).hide();
 
   // switch untuk menu sebelah kiri
@@ -193,6 +198,126 @@ $(document).ready(function () {
       $(".datatable-empty").html("Anda belum memiliki tagihan apapun");
       break;
     default:
-      $("#summary, #grafik").show();
+      // tampilkan data summary
+      $("#summary, #pilihWaktu").show();
+      let level = $("#inputLevelDashboard").val();
+      let username = level == "warga" ? $("#inputUsernameDashboard").val() : "";
+
+      // mengganti selektor kecil kecil
+      switch (level) {
+        case "bendahara":
+          $(".tabKuningDashboard ~ div").text("Rp");
+          $(".penjelasanKuning").text("Pemasukan");
+          $(".penjelasanHijau").text("Sudah Lunas");
+          $(".penjelasanMerah").text("Belum Lunas");
+          break;
+
+        case "warga":
+          $(".tabMerahDashboard ~ div").hide();
+          $(".tabBiruDashboard ~ div").text("-");
+          $(".tabHijauDashboard ~ div").text("Rp");
+          $(".penjelasanBiru").text("Waktu Pencatatan");
+          $(".penjelasanKuning").text("Pemakaian Air");
+          $(".penjelasanHijau").text("Tagihan");
+          $(".penjelasanMerah").text("Status Tagihan");
+          break;
+
+        default:
+          break;
+      }
+
+      // ketika selektor tanggal berubah
+      $("#selectorTanggal").on("change", function () {
+        // ambil nilai dari selektor
+        let bulan = $(this).val();
+        // minta data dengan post
+        $.ajax({
+          type: "post",
+          url: "../assets/ajax.php",
+          data: {
+            page: "summary",
+            time: bulan,
+            level: level,
+            username: username,
+          },
+          dataType: "json",
+        })
+
+          // jika berhasi
+          .done(function (done) {
+            // merubah null menjadi 0
+            for (const key in done) {
+              if (!done[key]) {
+                done[key] = 0;
+              }
+            }
+
+            switch (done["level"]) {
+              // menampilkan data admin atau petugas
+              case "admin":
+              case "petugas":
+                // data pelanggan belum dicatat
+                let dataBelumDicatat =
+                  done["jumlahPelanggan"] - done["dataSudahDicatat"];
+
+                // ubah data di tab summary
+                $(".tabBiruDashboard").text(done["jumlahPelanggan"]);
+                $(".tabKuningDashboard").text(done["jumlahPemakaian"]);
+                $(".tabHijauDashboard").text(done["dataSudahDicatat"]);
+                $(".tabMerahDashboard").text(dataBelumDicatat);
+                break;
+
+              // menampilkan data bendahara
+              case "bendahara":
+                // data pelanggan belum lunas
+                let dataBelumLunas =
+                  done["jumlahPelanggan"] - done["pelangganLunas"];
+
+                // ubah data di tab summary
+                $(".tabBiruDashboard").text(done["jumlahPelanggan"]);
+                $(".tabKuningDashboard").text(formatAngka(done["pemasukan"]));
+                $(".tabHijauDashboard").text(done["pelangganLunas"]);
+                $(".tabMerahDashboard").text(dataBelumLunas);
+                break;
+
+              // menampilkan data bendahara
+              case "warga":
+                // jika data ada
+                if (done["status"] == "berhasil") {
+                  // data pelanggan belum lunas
+                  let statusTagihan =
+                    done["statusTagihan"] == 1 ? "LUNAS" : "BLM LUNAS";
+
+                  // ubah data di tab summary
+                  $(".tabBiruDashboard").text(
+                    done["tanggalPencatatan"].slice(-2)
+                  );
+                  $(".tabBiruDashboard ~ div").text(done["waktuPencatatan"]);
+                  $(".tabKuningDashboard").text(
+                    formatAngka(done["pemakaianWarga"])
+                  );
+                  $(".tabHijauDashboard").text(
+                    formatAngka(done["tagihanWarga"])
+                  );
+                  $(".tabMerahDashboard").text(statusTagihan);
+                } else {
+                  $(".tabBiruDashboard").text("-");
+                  $(".tabBiruDashboard ~ div").text("-");
+                  $(".tabKuningDashboard").text("-");
+                  $(".tabHijauDashboard").text("-");
+                  $(".tabMerahDashboard").text("-");
+                }
+                break;
+
+              default:
+                break;
+            }
+          })
+
+          // jika gagal
+          .fail(function () {
+            console.log("ada eror");
+          });
+      });
   }
 });

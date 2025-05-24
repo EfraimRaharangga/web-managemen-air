@@ -189,51 +189,104 @@ $level = $data_user[2];
           <ol class="breadcrumb mb-4">
             <li class="breadcrumb-item active"><?php echo $li ?></li>
           </ol>
+
+          <!-- selektor pilih bulan  -->
+          <div class="row mb-3 w-40" id="pilihWaktu">
+            <label for="selectorTanggal" class="form-label">Pilih Waktu</label>
+            <div class="col-xl-3 col-md-12">
+              <select class="form-select" id="selectorTanggal" name="sellist1">
+                <option>Pilih Bulan</option>
+                <?php
+                $bulan = [
+                  'Januari',
+                  'Februari',
+                  'Maret',
+                  'April',
+                  'Mei',
+                  'Juni',
+                  'Juli',
+                  'Agustus',
+                  'September',
+                  'Oktober',
+                  'November',
+                  'Desember'
+                ];
+                for ($i = 1; $i <= 12; $i++) {
+                  $i = $i < 10 ? "0$i" : $i;
+                  $year = date("Y");
+                  $bulanSekarang = $bulan[$i - 1];
+                  echo "<option value='$year-$i'>$bulanSekarang $year</option>";
+                }
+                ?>
+
+              </select>
+            </div>
+          </div>
+
+          <!-- input tipe hidden -->
+          <input type="hidden" name="level" id="inputLevelDashboard" value=<?php echo $data_user[2] ?>></input>
+          <input type="hidden" name="username" id="inputUsernameDashboard" value=<?php echo $data_user[3] ?>></input>
+
+          <!-- tab biru -->
           <div class="row" id="summary">
             <div class="col-xl-3 col-md-6">
               <div class="card bg-primary text-white mb-4">
-                <div class="card-body">Primary Card</div>
+                <div class="card-body d-flex justify-content-center px-1 py-1">
+                  <h1 class="tabBiruDashboard">-</h1>
+                  <div class="ms-3">orang</div>
+                </div>
                 <div
                   class="card-footer d-flex align-items-center justify-content-between">
-                  <a class="small text-white stretched-link" href="#">View Details</a>
-                  <div class="small text-white">
-                    <i class="fas fa-angle-right"></i>
+                  <div class="small text-white d-flex justify-content-center align-items-center w-100">
+                    <span class="penjelasanBiru">Pelanggan</span>
                   </div>
                 </div>
               </div>
             </div>
+
+            <!-- tab kuning -->
             <div class="col-xl-3 col-md-6">
               <div class="card bg-warning text-white mb-4">
-                <div class="card-body">Warning Card</div>
+                <div class="card-body d-flex justify-content-center px-1 py-1">
+                  <h1 class="tabKuningDashboard">-</h1>
+                  <div class="ms-3">m<sup>3</sup></div>
+                </div>
                 <div
                   class="card-footer d-flex align-items-center justify-content-between">
-                  <a class="small text-white stretched-link" href="#">View Details</a>
-                  <div class="small text-white">
-                    <i class="fas fa-angle-right"></i>
+                  <div class="small text-white d-flex justify-content-center align-items-center w-100">
+                    <span class="penjelasanKuning">Pemakaian</span>
                   </div>
                 </div>
               </div>
             </div>
+
+            <!-- tab hijau -->
             <div class="col-xl-3 col-md-6">
               <div class="card bg-success text-white mb-4">
-                <div class="card-body">Success Card</div>
+                <div class="card-body d-flex justify-content-center px-1 py-1">
+                  <h1 class="tabHijauDashboard">-</h1>
+                  <div class="ms-3">warga</div>
+                </div>
                 <div
                   class="card-footer d-flex align-items-center justify-content-between">
-                  <a class="small text-white stretched-link" href="#">View Details</a>
-                  <div class="small text-white">
-                    <i class="fas fa-angle-right"></i>
+                  <div class="small text-white d-flex justify-content-center align-items-center w-100">
+                    <span class="penjelasanHijau">Sudah dicatat</span>
                   </div>
                 </div>
               </div>
             </div>
+
+            <!-- tab merah -->
             <div class="col-xl-3 col-md-6">
               <div class="card bg-danger text-white mb-4">
-                <div class="card-body">Danger Card</div>
+                <div class="card-body d-flex justify-content-center px-1 py-1">
+                  <h1 class="tabMerahDashboard">-</h1>
+                  <div class="ms-3">warga</div>
+                </div>
                 <div
                   class="card-footer d-flex align-items-center justify-content-between">
-                  <a class="small text-white stretched-link" href="#">View Details</a>
-                  <div class="small text-white">
-                    <i class="fas fa-angle-right"></i>
+                  <div class="small text-white d-flex justify-content-center align-items-center w-100">
+                    <span class="penjelasanMerah">Belum dicatat</span>
                   </div>
                 </div>
               </div>
