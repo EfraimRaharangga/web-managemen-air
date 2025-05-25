@@ -197,24 +197,11 @@ $level = $data_user[2];
               <select class="form-select" id="selectorTanggal" name="sellist1">
                 <option>Pilih Bulan</option>
                 <?php
-                $bulan = [
-                  'Januari',
-                  'Februari',
-                  'Maret',
-                  'April',
-                  'Mei',
-                  'Juni',
-                  'Juli',
-                  'Agustus',
-                  'September',
-                  'Oktober',
-                  'November',
-                  'Desember'
-                ];
+
                 for ($i = 1; $i <= 12; $i++) {
                   $i = $i < 10 ? "0$i" : $i;
                   $year = date("Y");
-                  $bulanSekarang = $bulan[$i - 1];
+                  $bulanSekarang = $bulanIndonesia[$i - 1];
                   echo "<option value='$year-$i'>$bulanSekarang $year</option>";
                 }
                 ?>
@@ -297,7 +284,7 @@ $level = $data_user[2];
               <div class="card mb-4">
                 <div class="card-header">
                   <i class="fas fa-chart-area me-1"></i>
-                  Area Chart Example
+                  Grafik Pemakaian Air (m<sup>3</sup>)
                 </div>
                 <div class="card-body">
                   <canvas id="myAreaChart" width="100%" height="40"></canvas>
@@ -308,7 +295,7 @@ $level = $data_user[2];
               <div class="card mb-4">
                 <div class="card-header">
                   <i class="fas fa-chart-bar me-1"></i>
-                  Bar Chart Example
+                  Grafik Tagihan Air (Rp)
                 </div>
                 <div class="card-body">
                   <canvas id="myBarChart" width="100%" height="40"></canvas>
@@ -1135,8 +1122,6 @@ $level = $data_user[2];
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"
     crossorigin="anonymous"></script>
-  <script src="../assets/demo/chart-area-demo.js"></script>
-  <script src="../assets/demo/chart-bar-demo.js"></script>
   <script
     src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
     crossorigin="anonymous"></script>

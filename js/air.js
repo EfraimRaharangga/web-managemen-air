@@ -199,7 +199,7 @@ $(document).ready(function () {
       break;
     default:
       // tampilkan data summary
-      $("#summary, #pilihWaktu").show();
+      $("#summary, #pilihWaktu,#grafik").show();
       let level = $("#inputLevelDashboard").val();
       let username = level == "warga" ? $("#inputUsernameDashboard").val() : "";
 
@@ -319,5 +319,147 @@ $(document).ready(function () {
             console.log("ada eror");
           });
       });
+
+      // untuk grafik
+      $.ajax({
+        type: "POST",
+        url: "../assets/ajax.php",
+        data: { page: "chart", username: username },
+        dataType: "json",
+      })
+        // ketika data berhasil didapatkan
+        .done(function (done) {
+          let sumbuX = done.filter((Number, index) => index % 2 == 0);
+          let sumbuY = done.filter((Number, index) => index % 2 !== 0);
+
+          // Chart grafik balok
+          Chart.defaults.global.defaultFontFamily =
+            '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+          Chart.defaults.global.defaultFontColor = "#292b2c";
+
+          // Bar Chart Example
+          var ctx = document.getElementById("myBarChart");
+          var myLineChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+              labels: sumbuX,
+              datasets: [
+                {
+                  label: "Pemakaian",
+                  backgroundColor: "rgba(2,117,216,1)",
+                  borderColor: "rgba(2,117,216,1)",
+                  data: sumbuY,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                xAxes: [
+                  {
+                    time: {
+                      unit: "month",
+                    },
+                    gridLines: {
+                      display: false,
+                    },
+                    ticks: {
+                      maxTicksLimit: 6,
+                    },
+                  },
+                ],
+                yAxes: [
+                  {
+                    ticks: {
+                      min: 0,
+                      max: 100,
+                      maxTicksLimit: 5,
+                    },
+                    gridLines: {
+                      display: true,
+                    },
+                  },
+                ],
+              },
+              legend: {
+                display: false,
+              },
+            },
+          });
+        });
+
+      $.ajax({
+        type: "post",
+        url: "../assets/ajax.php",
+        data: { page: "chartLine", username: username },
+        dataType: "json",
+      })
+        // jika data berhasil dikirim
+        .done(function (done) {
+          let sumbuX = done.filter((Number, index) => index % 2 == 0);
+          let sumbuY = done.filter((Number, index) => index % 2 !== 0);
+
+          // Set new default font family and font color to mimic Bootstrap's default styling
+          Chart.defaults.global.defaultFontFamily =
+            '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+          Chart.defaults.global.defaultFontColor = "#292b2c";
+
+          // Area Chart Example
+          var ctx = document.getElementById("myAreaChart");
+          var myLineChart = new Chart(ctx, {
+            type: "line",
+            data: {
+              labels: sumbuX,
+              datasets: [
+                {
+                  label: "Tagihan",
+                  lineTension: 0.3,
+                  backgroundColor: "rgba(2,117,216,0.2)",
+                  borderColor: "rgba(2,117,216,1)",
+                  pointRadius: 5,
+                  pointBackgroundColor: "rgba(2,117,216,1)",
+                  pointBorderColor: "rgba(255,255,255,0.8)",
+                  pointHoverRadius: 5,
+                  pointHoverBackgroundColor: "rgba(2,117,216,1)",
+                  pointHitRadius: 50,
+                  pointBorderWidth: 2,
+                  data: sumbuY,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                xAxes: [
+                  {
+                    time: {
+                      unit: "date",
+                    },
+                    gridLines: {
+                      display: false,
+                    },
+                    ticks: {
+                      maxTicksLimit: 7,
+                    },
+                  },
+                ],
+                yAxes: [
+                  {
+                    ticks: {
+                      min: 0,
+                      max: 500000,
+                      maxTicksLimit: 5,
+                    },
+                    gridLines: {
+                      color: "rgba(0, 0, 0, .125)",
+                    },
+                  },
+                ],
+              },
+              legend: {
+                display: false,
+              },
+            },
+          });
+        });
+      break;
   }
 });
