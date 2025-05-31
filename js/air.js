@@ -1,12 +1,16 @@
+import * as myFunc from "./function.js";
+
 $(document).ready(function () {
+  let level = $("#inputLevelDashboard").val();
+  let username = $("#inputUsernameDashboard").val();
+  let bulanSekarang = $("#selectorTanggal option:selected").val();
+
+  // mangambil data untuk summary
+  myFunc.fetchDatawithPost(bulanSekarang, level, username);
+
   // variabel get
   let url = window.location.href;
   let get = url.split("=");
-
-  // fungsi menambahkan titik setiap 3 angka
-  function formatAngka(n) {
-    return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-  }
 
   // menghilangkan semua isi
   $(
@@ -200,16 +204,29 @@ $(document).ready(function () {
     default:
       // tampilkan data summary
       $("#summary, #pilihWaktu,#grafik").show();
-      let level = $("#inputLevelDashboard").val();
-      let username = level == "warga" ? $("#inputUsernameDashboard").val() : "";
 
-      // mengganti selektor kecil kecil
+      // mengganti berdasarkan level
       switch (level) {
         case "bendahara":
+          // ganti summary
           $(".tabKuningDashboard ~ div").text("Rp");
           $(".penjelasanKuning").text("Pemasukan");
           $(".penjelasanHijau").text("Sudah Lunas");
           $(".penjelasanMerah").text("Belum Lunas");
+
+          // ganti tabel
+          myFunc.fetchGrafikGaris(username, "totalPemakaian", "myChart");
+          myFunc.fetchGrafikPie(username, "pie", "myChart2");
+          myFunc.fetchGrafikGaris(username, "totalTagihan", "myChart3");
+          myFunc.fetchGrafikGaris(username, "totalPemasukan", "myChart4");
+          myFunc.fetchGrafikBar(username, "totalWargaTercatat", "myChart5");
+          myFunc.fetchGrafikBar(
+            username,
+            "totalWargaBelumTercatat",
+            "myChart6"
+          );
+          myFunc.fetchGrafikBar(username, "totalWargaLunas", "myChart7");
+          myFunc.fetchGrafikBar(username, "totalWargaBelumLunas", "myChart8");
           break;
 
         case "warga":
@@ -220,7 +237,41 @@ $(document).ready(function () {
           $(".penjelasanKuning").text("Pemakaian Air");
           $(".penjelasanHijau").text("Tagihan");
           $(".penjelasanMerah").text("Status Tagihan");
+
+          // ganti grafik
+          myFunc.fetchGrafikBar(username, "pemakaianWarga", "myChart");
+          myFunc.fetchGrafikGaris(username, "tagihanWarga", "myChart2");
+          $(
+            "#myChart3, #myChart4, #myChart5, #myChart6, #myChart7, #myChart8"
+          ).hide();
+
           break;
+
+        case "admin":
+          myFunc.fetchGrafikGaris(username, "totalPemakaian", "myChart");
+          myFunc.fetchGrafikPie(username, "pie", "myChart2");
+          myFunc.fetchGrafikGaris(username, "totalTagihan", "myChart3");
+          myFunc.fetchGrafikGaris(username, "totalPemasukan", "myChart4");
+          myFunc.fetchGrafikBar(username, "totalWargaTercatat", "myChart5");
+          myFunc.fetchGrafikBar(
+            username,
+            "totalWargaBelumTercatat",
+            "myChart6"
+          );
+          myFunc.fetchGrafikBar(username, "totalWargaLunas", "myChart7");
+          myFunc.fetchGrafikBar(username, "totalWargaBelumLunas", "myChart8");
+          break;
+
+        case "petugas":
+          myFunc.fetchGrafikGaris(username, "totalPemakaian", "myChart");
+          myFunc.fetchGrafikPie(username, "pie", "myChart2");
+          myFunc.fetchGrafikBar(username, "totalWargaTercatat", "myChart3");
+          myFunc.fetchGrafikBar(
+            username,
+            "totalWargaBelumTercatat",
+            "myChart4"
+          );
+          $("#myChart5,#myChart6,#myChart7,#myChart8").hide();
 
         default:
           break;
@@ -231,235 +282,10 @@ $(document).ready(function () {
         // ambil nilai dari selektor
         let bulan = $(this).val();
         // minta data dengan post
-        $.ajax({
-          type: "post",
-          url: "../assets/ajax.php",
-          data: {
-            page: "summary",
-            time: bulan,
-            level: level,
-            username: username,
-          },
-          dataType: "json",
-        })
-
-          // jika berhasi
-          .done(function (done) {
-            // merubah null menjadi 0
-            for (const key in done) {
-              if (!done[key]) {
-                done[key] = 0;
-              }
-            }
-
-            switch (done["level"]) {
-              // menampilkan data admin atau petugas
-              case "admin":
-              case "petugas":
-                // data pelanggan belum dicatat
-                let dataBelumDicatat =
-                  done["jumlahPelanggan"] - done["dataSudahDicatat"];
-
-                // ubah data di tab summary
-                $(".tabBiruDashboard").text(done["jumlahPelanggan"]);
-                $(".tabKuningDashboard").text(done["jumlahPemakaian"]);
-                $(".tabHijauDashboard").text(done["dataSudahDicatat"]);
-                $(".tabMerahDashboard").text(dataBelumDicatat);
-                break;
-
-              // menampilkan data bendahara
-              case "bendahara":
-                // data pelanggan belum lunas
-                let dataBelumLunas =
-                  done["jumlahPelanggan"] - done["pelangganLunas"];
-
-                // ubah data di tab summary
-                $(".tabBiruDashboard").text(done["jumlahPelanggan"]);
-                $(".tabKuningDashboard").text(formatAngka(done["pemasukan"]));
-                $(".tabHijauDashboard").text(done["pelangganLunas"]);
-                $(".tabMerahDashboard").text(dataBelumLunas);
-                break;
-
-              // menampilkan data bendahara
-              case "warga":
-                // jika data ada
-                if (done["status"] == "berhasil") {
-                  // data pelanggan belum lunas
-                  let statusTagihan =
-                    done["statusTagihan"] == 1 ? "LUNAS" : "BLM LUNAS";
-
-                  // ubah data di tab summary
-                  $(".tabBiruDashboard").text(
-                    done["tanggalPencatatan"].slice(-2)
-                  );
-                  $(".tabBiruDashboard ~ div").text(done["waktuPencatatan"]);
-                  $(".tabKuningDashboard").text(
-                    formatAngka(done["pemakaianWarga"])
-                  );
-                  $(".tabHijauDashboard").text(
-                    formatAngka(done["tagihanWarga"])
-                  );
-                  $(".tabMerahDashboard").text(statusTagihan);
-                } else {
-                  $(".tabBiruDashboard").text("-");
-                  $(".tabBiruDashboard ~ div").text("-");
-                  $(".tabKuningDashboard").text("-");
-                  $(".tabHijauDashboard").text("-");
-                  $(".tabMerahDashboard").text("-");
-                }
-                break;
-
-              default:
-                break;
-            }
-          })
-
-          // jika gagal
-          .fail(function () {
-            console.log("ada eror");
-          });
+        myFunc.fetchDatawithPost(bulan, level, username);
       });
 
-      // untuk grafik
-      $.ajax({
-        type: "POST",
-        url: "../assets/ajax.php",
-        data: { page: "chart", username: username },
-        dataType: "json",
-      })
-        // ketika data berhasil didapatkan
-        .done(function (done) {
-          let sumbuX = done.filter((Number, index) => index % 2 == 0);
-          let sumbuY = done.filter((Number, index) => index % 2 !== 0);
-
-          // Chart grafik balok
-          Chart.defaults.global.defaultFontFamily =
-            '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-          Chart.defaults.global.defaultFontColor = "#292b2c";
-
-          // Bar Chart Example
-          var ctx = document.getElementById("myBarChart");
-          var myLineChart = new Chart(ctx, {
-            type: "bar",
-            data: {
-              labels: sumbuX,
-              datasets: [
-                {
-                  label: "Pemakaian",
-                  backgroundColor: "rgba(2,117,216,1)",
-                  borderColor: "rgba(2,117,216,1)",
-                  data: sumbuY,
-                },
-              ],
-            },
-            options: {
-              scales: {
-                xAxes: [
-                  {
-                    time: {
-                      unit: "month",
-                    },
-                    gridLines: {
-                      display: false,
-                    },
-                    ticks: {
-                      maxTicksLimit: 6,
-                    },
-                  },
-                ],
-                yAxes: [
-                  {
-                    ticks: {
-                      min: 0,
-                      max: 100,
-                      maxTicksLimit: 5,
-                    },
-                    gridLines: {
-                      display: true,
-                    },
-                  },
-                ],
-              },
-              legend: {
-                display: false,
-              },
-            },
-          });
-        });
-
-      $.ajax({
-        type: "post",
-        url: "../assets/ajax.php",
-        data: { page: "chartLine", username: username },
-        dataType: "json",
-      })
-        // jika data berhasil dikirim
-        .done(function (done) {
-          let sumbuX = done.filter((Number, index) => index % 2 == 0);
-          let sumbuY = done.filter((Number, index) => index % 2 !== 0);
-
-          // Set new default font family and font color to mimic Bootstrap's default styling
-          Chart.defaults.global.defaultFontFamily =
-            '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-          Chart.defaults.global.defaultFontColor = "#292b2c";
-
-          // Area Chart Example
-          var ctx = document.getElementById("myAreaChart");
-          var myLineChart = new Chart(ctx, {
-            type: "line",
-            data: {
-              labels: sumbuX,
-              datasets: [
-                {
-                  label: "Tagihan",
-                  lineTension: 0.3,
-                  backgroundColor: "rgba(2,117,216,0.2)",
-                  borderColor: "rgba(2,117,216,1)",
-                  pointRadius: 5,
-                  pointBackgroundColor: "rgba(2,117,216,1)",
-                  pointBorderColor: "rgba(255,255,255,0.8)",
-                  pointHoverRadius: 5,
-                  pointHoverBackgroundColor: "rgba(2,117,216,1)",
-                  pointHitRadius: 50,
-                  pointBorderWidth: 2,
-                  data: sumbuY,
-                },
-              ],
-            },
-            options: {
-              scales: {
-                xAxes: [
-                  {
-                    time: {
-                      unit: "date",
-                    },
-                    gridLines: {
-                      display: false,
-                    },
-                    ticks: {
-                      maxTicksLimit: 7,
-                    },
-                  },
-                ],
-                yAxes: [
-                  {
-                    ticks: {
-                      min: 0,
-                      max: 500000,
-                      maxTicksLimit: 5,
-                    },
-                    gridLines: {
-                      color: "rgba(0, 0, 0, .125)",
-                    },
-                  },
-                ],
-              },
-              legend: {
-                display: false,
-              },
-            },
-          });
-        });
+      // tampilkan grafik
       break;
   }
 });

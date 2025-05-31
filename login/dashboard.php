@@ -198,11 +198,24 @@ $level = $data_user[2];
                 <option>Pilih Bulan</option>
                 <?php
 
+                // ambil data terbaru 
+                if ($data_user[2] !== 'warga') {
+                  $qu1 = mysqli_query($koneksi, "SELECT tgl FROM pemakaian ORDER BY tgl DESC LIMIT 1");
+                  $du1 = mysqli_fetch_row($qu1);
+                  $arrayExplode = explode('-', $du1[0]);
+                } else {
+                  $username = $data_user[3];
+                  $qu1 = mysqli_query($koneksi, "SELECT tgl FROM pemakaian WHERE username='$username' ORDER BY tgl DESC LIMIT 1");
+                  $du1 = mysqli_fetch_row($qu1);
+                  $arrayExplode = explode('-', $du1[0]);
+                }
+
                 for ($i = 1; $i <= 12; $i++) {
                   $i = $i < 10 ? "0$i" : $i;
+                  $sel = $arrayExplode[1] == $i ? "SELECTED" : "";
                   $year = date("Y");
                   $bulanSekarang = $bulanIndonesia[$i - 1];
-                  echo "<option value='$year-$i'>$bulanSekarang $year</option>";
+                  echo "<option value='$year-$i' $sel>$bulanSekarang $year</option>";
                 }
                 ?>
 
@@ -280,25 +293,91 @@ $level = $data_user[2];
             </div>
           </div>
           <div class="row" id="grafik">
-            <div class="col-xl-6">
+            <div class="col-xl-6" id="myChart">
               <div class="card mb-4">
                 <div class="card-header">
                   <i class="fas fa-chart-area me-1"></i>
                   Grafik Pemakaian Air (m<sup>3</sup>)
                 </div>
                 <div class="card-body">
-                  <canvas id="myAreaChart" width="100%" height="40"></canvas>
+                  <canvas width="100%" height="40"></canvas>
                 </div>
               </div>
             </div>
-            <div class="col-xl-6">
+            <div class="col-xl-6" id="myChart2">
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="fas fa-chart-area me-1"></i>
+                  Grafik Pie
+                </div>
+                <div class="card-body">
+                  <canvas width="100%" height="40"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6" id="myChart3">
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="fas fa-chart-bar me-1"></i>
+                  Total Tagihan Air (Rp)
+                </div>
+                <div class="card-body">
+                  <canvas width="100%" height="40"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6" id='myChart4'>
               <div class="card mb-4">
                 <div class="card-header">
                   <i class="fas fa-chart-bar me-1"></i>
                   Grafik Tagihan Air (Rp)
                 </div>
                 <div class="card-body">
-                  <canvas id="myBarChart" width="100%" height="40"></canvas>
+                  <canvas width="100%" height="40"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6" id='myChart5'>
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="fas fa-chart-bar me-1"></i>
+                  Grafik Tagihan Air (Rp)
+                </div>
+                <div class="card-body">
+                  <canvas width="100%" height="40"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6" id='myChart6'>
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="fas fa-chart-bar me-1"></i>
+                  Grafik Tagihan Air (Rp)
+                </div>
+                <div class="card-body">
+                  <canvas width="100%" height="40"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6" id='myChart7'>
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="fas fa-chart-bar me-1"></i>
+                  Grafik Tagihan Air (Rp)
+                </div>
+                <div class="card-body">
+                  <canvas width="100%" height="40"></canvas>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-6" id='myChart8'>
+              <div class="card mb-4">
+                <div class="card-header">
+                  <i class="fas fa-chart-bar me-1"></i>
+                  Grafik Tagihan Air (Rp)
+                </div>
+                <div class="card-body">
+                  <canvas width="100%" height="40"></canvas>
                 </div>
               </div>
             </div>
@@ -1117,7 +1196,7 @@ $level = $data_user[2];
     crossorigin="anonymous"></script>
   <script src="../js/scripts.js"></script>
   <script src="../js/jquery-3.7.1.js"></script>
-  <script src="../js/air.js"></script>
+  <script src="../js/air.js" type="module"></script>
 
   <script
     src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"
