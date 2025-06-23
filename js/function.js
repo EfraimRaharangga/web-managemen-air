@@ -173,11 +173,9 @@ export function fetchGrafikBar(data, type, id) {
 export function fetchGrafikGaris(data, type, id) {
   // ganti isi pemakaian
   let label = labelType(type);
+  let sumbuX;
+  let sumbuY;
   let other;
-  let sumbuX = data.filter((Number, index) => index % 2 == 0);
-  let sumbuY = data.filter((Number, index) => index % 2 !== 0);
-  let maxChart = Math.max(...sumbuY) + Math.max(...sumbuY) * 0.15;
-  let total = sumbuY.reduce((a, c) => parseInt(a) + parseInt(c), 0);
 
   if (type == "tagihanWarga") {
     let [firstElement, ...restOfElement] = data;
@@ -188,6 +186,9 @@ export function fetchGrafikGaris(data, type, id) {
     sumbuX = data.filter((Number, index) => index % 2 == 0);
     sumbuY = data.filter((Number, index) => index % 2 !== 0);
   }
+
+  let maxChart = Math.max(...sumbuY) + Math.max(...sumbuY) * 0.15;
+  let total = sumbuY.reduce((a, c) => parseInt(a) + parseInt(c), 0);
 
   // menentukan header
   $(`#${id} .card-header`).html(headerKita(type, total, other));
