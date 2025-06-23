@@ -105,3 +105,112 @@ function formatTanggalIndo($tanggal)
     $thn = date('Y', strtotime($tanggal));
     return $tgl . ' ' . $bulan[$bln] . ' ' . $thn;
 }
+
+function panggilDatabase($page, $koneksi, $username)
+{
+    $bulanIndonesia = [
+        'Januari',
+        'Februari',
+        'Maret',
+        'April',
+        'Mei',
+        'Juni',
+        'Juli',
+        'Agustus',
+        'September',
+        'Oktober',
+        'November',
+        'Desember'
+    ];
+    $response = [];
+
+    switch ($page) {
+        case 'pemakaianWarga':
+            $q = mysqli_query($koneksi, "SELECT MONTH(tgl) as bulan, pemakaian FROM pemakaian WHERE username='$username'");
+            while ($d = mysqli_fetch_assoc($q)) {
+                $response[] = $bulanIndonesia[$d['bulan'] - 1];
+                $response[] = $d['pemakaian'];
+            }
+
+            break;
+        case 'totalTagihan':
+            $q = mysqli_query($koneksi, "SELECT MONTH(tgl) as bulan, tagihan FROM pemakaian  ORDER BY MONTH(tgl) ASC");
+            while ($d = mysqli_fetch_assoc($q)) {
+                $response[] = $bulanIndonesia[$d['bulan'] - 1];
+                $response[] = $d['tagihan'];
+            }
+            break;
+
+        case 'totalWargaTercatat':
+            $q = mysqli_query($koneksi, "SELECT MONTH(tgl) as bulan, COUNT(username) as dataSudahDicatat FROM pemakaian GROUP BY MONTH(tgl) ORDER BY MONTH(tgl) ASC");
+            while ($d = mysqli_fetch_assoc($q)) {
+                $response[] = $bulanIndonesia[$d['bulan'] - 1];
+                $response[] = $d['dataSudahDicatat'];
+            }
+            break;
+
+        case 'totalWargaBelumTercatat':
+            $q1 = mysqli_query($koneksi, "SELECT COUNT(username) as jumlahPelanggan FROM user WHERE level='warga'");
+            $d1 = mysqli_fetch_row($q1);
+
+            $q = mysqli_query($koneksi, "SELECT MONTH(tgl) as bulan, COUNT(username) as dataSudahDicatat FROM pemakaian GROUP BY MONTH(tgl) ORDER BY MONTH(tgl) ASC");
+            while ($d = mysqli_fetch_assoc($q)) {
+                $response[] = $bulanIndonesia[$d['bulan'] - 1];
+                $response[] = $d1[0] - $d['dataSudahDicatat'];
+            }
+            break;
+
+        case 'totalWargaLunas':
+            $q = mysqli_query($koneksi, "SELECT MONTH(tgl) as bulan, COUNT(username) as dataSudahLunas FROM pemakaian WHERE status='1' GROUP BY MONTH(tgl) ORDER BY MONTH(tgl) ASC");
+            while ($d = mysqli_fetch_assoc($q)) {
+                $response[] = $bulanIndonesia[$d['bulan'] - 1];
+                $response[] = $d['dataSudahLunas'];
+            }
+            break;
+        case 'totalWargaBelumLunas':
+            $q1 = mysqli_query($koneksi, "SELECT COUNT(username) as jumlahPelanggan FROM user WHERE level='warga'");
+            $d1 = mysqli_fetch_row($q1);
+
+            $q = mysqli_query($koneksi, "SELECT MONTH(tgl) as bulan, COUNT(username) as dataSudahLunas FROM pemakaian WHERE status='1' GROUP BY MONTH(tgl) ORDER BY MONTH(tgl) ASC");
+            while ($d = mysqli_fetch_assoc($q)) {
+                $response[] = $bulanIndonesia[$d['bulan'] - 1];
+                $response[] = $d1[0] - $d['dataSudahLunas'];
+            }
+            break;
+
+        case 'totalPemakaian':
+            $q = mysqli_query($koneksi, "SELECT MONTH(tgl) as bulan, pemakaian FROM pemakaian ORDER BY MONTH(tgl) ASC");
+            while ($d = mysqli_fetch_assoc($q)) {
+                $response[] = $bulanIndonesia[$d['bulan'] - 1];
+                $response[] = $d['pemakaian'];
+            }
+            break;
+        case 'totalPemasukan':
+            $q = mysqli_query($koneksi, "SELECT MONTH(tgl) as bulan, SUM(tagihan) AS total_tagihan_lunas FROM pemakaian WHERE status='1' GROUP BY MONTH(tgl) ORDER BY MONTH(tgl) ASC");
+            while ($d = mysqli_fetch_assoc($q)) {
+                $response[] = $bulanIndonesia[$d['bulan'] - 1];
+                $response[] = $d['total_tagihan_lunas'];
+            }
+            break;
+        case 'tagihanWarga':
+            $q2 = mysqli_query($koneksi, "SELECT SUM(tagihan) as pemasukan FROM pemakaian WHERE username='$username' AND status='0'");
+            $d2 = mysqli_fetch_row($q2);
+            $response[] = $d2[0];
+            $q = mysqli_query($koneksi, "SELECT MONTH(tgl) as bulan, tagihan FROM pemakaian WHERE username='$username'");
+            while ($d = mysqli_fetch_assoc($q)) {
+                $response[] = $bulanIndonesia[$d['bulan'] - 1];
+                $response[] = $d['tagihan'];
+            }
+            break;
+
+        case 'pie':
+            $q = mysqli_query($koneksi, "SELECT SUM(CASE WHEN tipe = 'kos' THEN 1 ELSE 0 END), SUM(CASE WHEN tipe = 'rumah' THEN 1 ELSE 0 END) FROM user");
+            $d = mysqli_fetch_row($q);
+            $response[] = $d;
+            break;
+        default:
+            # code...
+            break;
+    }
+    return $response;
+}

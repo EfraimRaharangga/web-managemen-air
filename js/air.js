@@ -204,78 +204,102 @@ $(document).ready(function () {
     default:
       // tampilkan data summary
       $("#summary, #pilihWaktu,#grafik").show();
+      let dataAjax = { level, username: username, page: "grafik" };
 
-      // mengganti berdasarkan level
-      switch (level) {
-        case "bendahara":
-          // ganti summary
-          $(".tabKuningDashboard ~ div").text("Rp");
-          $(".penjelasanKuning").text("Pemasukan");
-          $(".penjelasanHijau").text("Sudah Lunas");
-          $(".penjelasanMerah").text("Belum Lunas");
+      $.ajax({
+        type: "POST",
+        url: "../assets/ajax.php",
+        data: dataAjax,
+        dataType: "json",
+      })
+        // ketika data berhasil didapatkan
+        .done(function (done) {
+          // mengganti berdasarkan level
+          switch (level) {
+            case "bendahara":
+              // ganti summary
+              $(".tabKuningDashboard ~ div").text("Rp");
+              $(".penjelasanKuning").text("Pemasukan");
+              $(".penjelasanHijau").text("Sudah Lunas");
+              $(".penjelasanMerah").text("Belum Lunas");
 
-          // ganti tabel
-          myFunc.fetchGrafikGaris(username, "totalPemakaian", "myChart");
-          myFunc.fetchGrafikPie(username, "pie", "myChart2");
-          myFunc.fetchGrafikGaris(username, "totalTagihan", "myChart3");
-          myFunc.fetchGrafikGaris(username, "totalPemasukan", "myChart4");
-          myFunc.fetchGrafikBar(username, "totalWargaTercatat", "myChart5");
-          myFunc.fetchGrafikBar(
-            username,
-            "totalWargaBelumTercatat",
-            "myChart6"
-          );
-          myFunc.fetchGrafikBar(username, "totalWargaLunas", "myChart7");
-          myFunc.fetchGrafikBar(username, "totalWargaBelumLunas", "myChart8");
-          break;
+              // ganti tabel
+              myFunc.fetchGrafikGaris(done[0], "totalPemakaian", "myChart");
+              myFunc.fetchGrafikPie(done[1], "pie", "myChart2");
+              myFunc.fetchGrafikGaris(done[2], "totalTagihan", "myChart3");
+              myFunc.fetchGrafikGaris(done[3], "totalPemasukan", "myChart4");
+              myFunc.fetchGrafikBar(done[4], "totalWargaTercatat", "myChart5");
+              myFunc.fetchGrafikBar(
+                done[5],
+                "totalWargaBelumTercatat",
+                "myChart6"
+              );
+              myFunc.fetchGrafikBar(done[6], "totalWargaLunas", "myChart7");
+              myFunc.fetchGrafikBar(
+                done[7],
+                "totalWargaBelumLunas",
+                "myChart8"
+              );
+              break;
 
-        case "warga":
-          $(".tabMerahDashboard ~ div").hide();
-          $(".tabBiruDashboard ~ div").text("-");
-          $(".tabHijauDashboard ~ div").text("Rp");
-          $(".penjelasanBiru").text("Waktu Pencatatan");
-          $(".penjelasanKuning").text("Pemakaian Air");
-          $(".penjelasanHijau").text("Tagihan");
-          $(".penjelasanMerah").text("Status Tagihan");
+            case "warga":
+              // ganti summary
+              $(".tabMerahDashboard ~ div").hide();
+              $(".tabBiruDashboard ~ div").text("-");
+              $(".tabHijauDashboard ~ div").text("Rp");
+              $(".penjelasanBiru").text("Waktu Pencatatan");
+              $(".penjelasanKuning").text("Pemakaian Air");
+              $(".penjelasanHijau").text("Tagihan");
+              $(".penjelasanMerah").text("Status Tagihan");
 
-          // ganti grafik
-          myFunc.fetchGrafikBar(username, "pemakaianWarga", "myChart");
-          myFunc.fetchGrafikGaris(username, "tagihanWarga", "myChart2");
-          $(
-            "#myChart3, #myChart4, #myChart5, #myChart6, #myChart7, #myChart8"
-          ).hide();
+              // ganti grafik
+              myFunc.fetchGrafikBar(done[0], "pemakaianWarga", "myChart");
+              myFunc.fetchGrafikGaris(done[1], "tagihanWarga", "myChart2");
+              $(
+                "#myChart3, #myChart4, #myChart5, #myChart6, #myChart7, #myChart8"
+              ).hide();
 
-          break;
+              break;
 
-        case "admin":
-          myFunc.fetchGrafikGaris(username, "totalPemakaian", "myChart");
-          myFunc.fetchGrafikPie(username, "pie", "myChart2");
-          myFunc.fetchGrafikGaris(username, "totalTagihan", "myChart3");
-          myFunc.fetchGrafikGaris(username, "totalPemasukan", "myChart4");
-          myFunc.fetchGrafikBar(username, "totalWargaTercatat", "myChart5");
-          myFunc.fetchGrafikBar(
-            username,
-            "totalWargaBelumTercatat",
-            "myChart6"
-          );
-          myFunc.fetchGrafikBar(username, "totalWargaLunas", "myChart7");
-          myFunc.fetchGrafikBar(username, "totalWargaBelumLunas", "myChart8");
-          break;
+            case "admin":
+              // mengisi object data
 
-        case "petugas":
-          myFunc.fetchGrafikGaris(username, "totalPemakaian", "myChart");
-          myFunc.fetchGrafikPie(username, "pie", "myChart2");
-          myFunc.fetchGrafikBar(username, "totalWargaTercatat", "myChart3");
-          myFunc.fetchGrafikBar(
-            username,
-            "totalWargaBelumTercatat",
-            "myChart4"
-          );
-          $("#myChart5,#myChart6,#myChart7,#myChart8").hide();
+              myFunc.fetchGrafikGaris(done[0], "totalPemakaian", "myChart");
+              myFunc.fetchGrafikPie(done[1], "pie", "myChart2");
+              myFunc.fetchGrafikGaris(done[2], "totalTagihan", "myChart3");
+              myFunc.fetchGrafikGaris(done[3], "totalPemasukan", "myChart4");
+              myFunc.fetchGrafikBar(done[4], "totalWargaTercatat", "myChart5");
+              myFunc.fetchGrafikBar(
+                done[5],
+                "totalWargaBelumTercatat",
+                "myChart6"
+              );
+              myFunc.fetchGrafikBar(
+                done[6],
+                "totalWargaBelumLunas",
+                "myChart7"
+              );
+              myFunc.fetchGrafikBar(done[7], "totalWargaLunas", "myChart8");
+              break;
 
-        default:
-          break;
-      }
+            case "petugas":
+              // mengisi object data
+              dataAjax.level = "bendahara";
+
+              myFunc.fetchGrafikGaris(done[0], "totalPemakaian", "myChart");
+              myFunc.fetchGrafikPie(done[1], "pie", "myChart2");
+              myFunc.fetchGrafikBar(done[2], "totalWargaTercatat", "myChart3");
+              myFunc.fetchGrafikBar(
+                done[3],
+                "totalWargaBelumTercatat",
+                "myChart4"
+              );
+              $("#myChart5,#myChart6,#myChart7,#myChart8").hide();
+
+            default:
+              break;
+          }
+        });
 
       // ketika selektor tanggal berubah
       $("#selectorTanggal").on("change", function () {

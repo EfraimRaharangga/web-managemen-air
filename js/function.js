@@ -105,223 +105,193 @@ export function fetchDatawithPost(bulan, level, username) {
     });
 }
 
-export function fetchGrafikBar(username, type, id) {
+export function fetchGrafikBar(data, type, id) {
   let label = labelType(type);
+  let sumbuX = data.filter((Number, index) => index % 2 == 0);
+  let sumbuY = data.filter((Number, index) => index % 2 !== 0);
+  let maxChart = Math.max(...sumbuY) + Math.max(...sumbuY) * 0.15;
+  let total = sumbuY.reduce((a, c) => parseInt(a) + parseInt(c), 0);
 
-  $.ajax({
-    type: "POST",
-    url: "../assets/ajax.php",
-    data: { page: type, username: username },
-    dataType: "json",
-  })
-    // ketika data berhasil didapatkan
-    .done(function (done) {
-      let sumbuX = done.filter((Number, index) => index % 2 == 0);
-      let sumbuY = done.filter((Number, index) => index % 2 !== 0);
-      let maxChart = Math.max(...sumbuY) + Math.max(...sumbuY) * 0.15;
-      let total = sumbuY.reduce((a, c) => parseInt(a) + parseInt(c), 0);
+  // Chart grafik balok
+  Chart.defaults.global.defaultFontFamily =
+    '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+  Chart.defaults.global.defaultFontColor = "#292b2c";
 
-      // menentukan header
-      $(`#${id} .card-header`).html(headerKita(type, total));
-
-      // Chart grafik balok
-      Chart.defaults.global.defaultFontFamily =
-        '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-      Chart.defaults.global.defaultFontColor = "#292b2c";
-
-      // Bar Chart Example
-      let ctx = document.querySelector(`#${id} .card-body canvas`);
-      var myLineChart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: sumbuX,
-          datasets: [
-            {
-              label: label,
-              backgroundColor: "#36A2EB",
-              borderColor: "#36A2EB",
-              data: sumbuY,
-            },
-          ],
+  // Bar Chart Example
+  let ctx = document.querySelector(`#${id} .card-body canvas`);
+  var myLineChart = new Chart(ctx, {
+    type: "bar",
+    data: {
+      labels: sumbuX,
+      datasets: [
+        {
+          label: label,
+          backgroundColor: "#36A2EB",
+          borderColor: "#36A2EB",
+          data: sumbuY,
         },
-        options: {
-          scales: {
-            xAxes: [
-              {
-                time: {
-                  unit: "month",
-                },
-                gridLines: {
-                  display: false,
-                },
-                ticks: {
-                  maxTicksLimit: 6,
-                },
-              },
-            ],
-            yAxes: [
-              {
-                ticks: {
-                  min: 0,
-                  max: maxChart,
-                  maxTicksLimit: 5,
-                },
-                gridLines: {
-                  display: true,
-                },
-              },
-            ],
-          },
-          legend: {
-            display: false,
-          },
-        },
-      });
-    });
-}
-
-export function fetchGrafikGaris(username, type, id) {
-  // ganti isi pemakaian
-  let label = labelType(type);
-  //  mengirim ajax
-  $.ajax({
-    type: "post",
-    url: "../assets/ajax.php",
-    data: { page: type, username: username },
-    dataType: "json",
-  })
-    // jika data berhasil dikirim
-    .done(function (done) {
-      let sumbuX;
-      let sumbuY;
-      let other;
-      if (type == "tagihanWarga") {
-        let [firstElement, ...restOfElement] = done;
-        sumbuX = restOfElement.filter((Number, index) => index % 2 == 0);
-        sumbuY = restOfElement.filter((Number, index) => index % 2 !== 0);
-        other = firstElement;
-      } else {
-        sumbuX = done.filter((Number, index) => index % 2 == 0);
-        sumbuY = done.filter((Number, index) => index % 2 !== 0);
-      }
-      let maxChart = Math.max(...sumbuY) + Math.max(...sumbuY) * 0.15;
-      let total = sumbuY.reduce((a, c) => parseInt(a) + parseInt(c), 0);
-
-      // menentukan header
-      $(`#${id} .card-header`).html(headerKita(type, total, other));
-
-      // Set new default font family and font color to mimic Bootstrap's default styling
-      Chart.defaults.global.defaultFontFamily =
-        '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-      Chart.defaults.global.defaultFontColor = "#292b2c";
-
-      // Area Chart Example
-      let ctx = document.querySelector(`#${id} .card-body canvas`);
-      var myLineChart = new Chart(ctx, {
-        type: "line",
-        data: {
-          labels: sumbuX,
-          datasets: [
-            {
-              label: label,
-              lineTension: 0.3,
-              backgroundColor: "rgba(2,117,216,0.2)",
-              borderColor: "#36A2EB",
-              pointRadius: 5,
-              pointBackgroundColor: "#36A2EB",
-              pointBorderColor: "rgba(255,255,255,0.8)",
-              pointHoverRadius: 5,
-              pointHoverBackgroundColor: "#36A2EB",
-              pointHitRadius: 50,
-              pointBorderWidth: 2,
-              data: sumbuY,
-            },
-          ],
-        },
-        options: {
-          scales: {
-            xAxes: [
-              {
-                time: {
-                  unit: "date",
-                },
-                gridLines: {
-                  display: false,
-                },
-                ticks: {
-                  maxTicksLimit: 7,
-                },
-              },
-            ],
-            yAxes: [
-              {
-                ticks: {
-                  min: 0,
-                  max: maxChart,
-                  maxTicksLimit: 5,
-                },
-                gridLines: {
-                  color: "#36A2EB",
-                },
-              },
-            ],
-          },
-          legend: {
-            display: false,
-          },
-        },
-      });
-    });
-}
-
-export function fetchGrafikPie(username, type, id) {
-  //  mengirim ajax
-  $.ajax({
-    type: "post",
-    url: "../assets/ajax.php",
-    data: { page: type, username: username },
-    dataType: "json",
-  })
-    // jika data berhasil dikirim
-    .done(function (done) {
-      // menentukan header
-      $(`#${id} .card-header`).html(headerKita(type));
-
-      // Set new default font family and font color to mimic Bootstrap's default styling
-      Chart.defaults.global.defaultFontFamily =
-        '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
-      Chart.defaults.global.defaultFontColor = "#292b2c";
-
-      // selector id
-      let ctx = document.querySelector(`#${id} .card-body canvas`);
-      console.log(ctx);
-      // Data untuk grafik pie
-      const data = {
-        labels: ["Kost", "Rumah"],
-        datasets: [
+      ],
+    },
+    options: {
+      scales: {
+        xAxes: [
           {
-            data: done, // Nilai untuk setiap bagian pie
-            borderWidth: "10rem",
-            backgroundColor: [
-              // Warna latar belakang untuk setiap bagian
-              "#FF6384", // Merah muda
-              "#36A2EB", // Biru
-            ],
-            hoverBackgroundColor: [
-              // Warna saat di-hover (opsional)
-              "#FF6384",
-              "#36A2EB",
-            ],
+            time: {
+              unit: "month",
+            },
+            gridLines: {
+              display: false,
+            },
+            ticks: {
+              maxTicksLimit: 6,
+            },
           },
         ],
-      };
+        yAxes: [
+          {
+            ticks: {
+              min: 0,
+              max: maxChart,
+              maxTicksLimit: 5,
+            },
+            gridLines: {
+              display: true,
+            },
+          },
+        ],
+      },
+      legend: {
+        display: false,
+      },
+    },
+  });
 
-      // Buat objek grafik pie
-      const myPieChart = new Chart(ctx, {
-        type: "pie", // Tipe grafik
-        data: data,
-      });
-    });
+  // menentukan header
+  $(`#${id} .card-header`).html(headerKita(type, total));
+}
+
+export function fetchGrafikGaris(data, type, id) {
+  // ganti isi pemakaian
+  let label = labelType(type);
+  let other;
+  let sumbuX = data.filter((Number, index) => index % 2 == 0);
+  let sumbuY = data.filter((Number, index) => index % 2 !== 0);
+  let maxChart = Math.max(...sumbuY) + Math.max(...sumbuY) * 0.15;
+  let total = sumbuY.reduce((a, c) => parseInt(a) + parseInt(c), 0);
+
+  if (type == "tagihanWarga") {
+    let [firstElement, ...restOfElement] = data;
+    sumbuX = restOfElement.filter((Number, index) => index % 2 == 0);
+    sumbuY = restOfElement.filter((Number, index) => index % 2 !== 0);
+    other = firstElement;
+  } else {
+    sumbuX = data.filter((Number, index) => index % 2 == 0);
+    sumbuY = data.filter((Number, index) => index % 2 !== 0);
+  }
+
+  // menentukan header
+  $(`#${id} .card-header`).html(headerKita(type, total, other));
+
+  // Set new default font family and font color to mimic Bootstrap's default styling
+  Chart.defaults.global.defaultFontFamily =
+    '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+  Chart.defaults.global.defaultFontColor = "#292b2c";
+
+  // Area Chart Example
+  let ctx = document.querySelector(`#${id} .card-body canvas`);
+  var myLineChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: sumbuX,
+      datasets: [
+        {
+          label: label,
+          lineTension: 0.3,
+          backgroundColor: "rgba(2,117,216,0.2)",
+          borderColor: "#36A2EB",
+          pointRadius: 5,
+          pointBackgroundColor: "#36A2EB",
+          pointBorderColor: "rgba(255,255,255,0.8)",
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: "#36A2EB",
+          pointHitRadius: 50,
+          pointBorderWidth: 2,
+          data: sumbuY,
+        },
+      ],
+    },
+    options: {
+      scales: {
+        xAxes: [
+          {
+            time: {
+              unit: "date",
+            },
+            gridLines: {
+              display: false,
+            },
+            ticks: {
+              maxTicksLimit: 7,
+            },
+          },
+        ],
+        yAxes: [
+          {
+            ticks: {
+              min: 0,
+              max: maxChart,
+              maxTicksLimit: 5,
+            },
+            gridLines: {
+              color: "#36A2EB",
+            },
+          },
+        ],
+      },
+      legend: {
+        display: false,
+      },
+    },
+  });
+}
+
+export function fetchGrafikPie(dataObjek, type, id) {
+  // menentukan header
+  $(`#${id} .card-header`).html(headerKita(type));
+
+  // Set new default font family and font color to mimic Bootstrap's default styling
+  Chart.defaults.global.defaultFontFamily =
+    '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
+  Chart.defaults.global.defaultFontColor = "#292b2c";
+
+  // selector id
+  let ctx = document.querySelector(`#${id} .card-body canvas`);
+  // Data untuk grafik pie
+  const data = {
+    labels: ["Kost", "Rumah"],
+    datasets: [
+      {
+        data: dataObjek[0], // Nilai untuk setiap bagian pie
+        borderWidth: "10rem",
+        backgroundColor: [
+          // Warna latar belakang untuk setiap bagian
+          "#FF6384", // Merah muda
+          "#36A2EB", // Biru
+        ],
+        hoverBackgroundColor: [
+          // Warna saat di-hover (opsional)
+          "#FF6384",
+          "#36A2EB",
+        ],
+      },
+    ],
+  };
+
+  // Buat objek grafik pie
+  const myPieChart = new Chart(ctx, {
+    type: "pie", // Tipe grafik
+    data: data,
+  });
 }
 
 function labelType(type) {
